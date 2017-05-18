@@ -94,7 +94,7 @@ func main() {
 // Call init_account, CreateAward
 // Invoke
 // ============================================================================================================================
-func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	return nil, nil
 }
 
@@ -105,7 +105,7 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, function strin
 // update AwardParty struct (add grantor role)
 // Invoke
 // ============================================================================================================================
-func (t *SimpleChaincode) CommitFund(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (t *SimpleChaincode) CommitFund(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	return nil, nil
 }
 
@@ -116,7 +116,7 @@ func (t *SimpleChaincode) CommitFund(stub shim.ChaincodeStubInterface, function 
 // update Award struct (status changed)
 // Invoke
 // ============================================================================================================================
-func (t *SimpleChaincode) ReleaseFund(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (t *SimpleChaincode) ReleaseFund(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	return nil, nil
 }
 
@@ -127,7 +127,7 @@ func (t *SimpleChaincode) ReleaseFund(stub shim.ChaincodeStubInterface, function
 // Needs from user and to user
 // Invoke
 // ============================================================================================================================
-func (t *SimpleChaincode) RequestReimbursement(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (t *SimpleChaincode) RequestReimbursement(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	return nil, nil
 }
 
@@ -137,7 +137,7 @@ func (t *SimpleChaincode) RequestReimbursement(stub shim.ChaincodeStubInterface,
 // Function: update Award struct, update AwardParty struct
 // Invoke
 // ============================================================================================================================
-func (t *SimpleChaincode) CreateAward(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (t *SimpleChaincode) CreateAward(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	return nil, nil
 }
 
@@ -148,7 +148,7 @@ func (t *SimpleChaincode) CreateAward(stub shim.ChaincodeStubInterface, function
 // Necessary?
 // Invoke
 // ============================================================================================================================
-func (t *SimpleChaincode) RequestAward(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (t *SimpleChaincode) RequestAward(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	return nil, nil
 }
 
@@ -159,7 +159,7 @@ func (t *SimpleChaincode) RequestAward(stub shim.ChaincodeStubInterface, functio
 // update AwardParty struct (add sub-grantee), ?? AwardAmount() ??
 // Invoke
 // ============================================================================================================================
-func (t *SimpleChaincode) AllocateSubAward(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (t *SimpleChaincode) AllocateSubAward(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	return nil, nil
 }
 
@@ -170,7 +170,7 @@ func (t *SimpleChaincode) AllocateSubAward(stub shim.ChaincodeStubInterface, fun
 // Need from user and to user
 // Invoke
 // ============================================================================================================================
-func (t *SimpleChaincode) Spend(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+func (t *SimpleChaincode) Spend(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	return nil, nil
 }
 
@@ -226,6 +226,8 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 		return t.Write(stub, args)
 	} else if function == "init_account" {									
 		return t.init_actor(stub, args)
+	}else if function == "CommitFund"{
+		return t.CommitFund(stub, args)
 	}
 	//else if function == "transfer_balance" {
 	//	return t.transfer_balance(stub, args)
