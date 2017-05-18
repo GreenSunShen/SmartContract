@@ -26,7 +26,7 @@ type  SimpleChaincode struct {
 type Actor struct {
 	ActorId   string `json:"actorid"`
 	ActorName string `json:"actorname"`
-	Balance   int  `json:"balance"`
+	Balance   string  `json:"balance"`
 }
 
 
@@ -61,6 +61,8 @@ type Reimbursement struct {
 	Status string `json:"status"`
 	AwardId string `json:"awardid"`
 	Amount int `json:"amount"`
+	FromUser string `json:"fromuser"`
+	ToUser string `json:"touser"`
 }
 
 //expenditure (expenditure id, amount, project id, date, type, reimbursement id)
@@ -72,6 +74,8 @@ type Expenditure struct {
 	Type string `json:"type"`
 	Status string `json:"status"`
 	ReimbursementId string `json:"reimbursementid"`
+	FromUser string `json:"fromuser"`
+	ToUser string `json:"touser"`
 }
 
 
@@ -91,7 +95,7 @@ func main() {
 // ============================================================================================================================
 // SetUp Function - Called after the user deploys the chain code, before demo
 // Function: create 4 actors, update AwardParty struct, update Award struct
-// Call init_account, CreateAward
+// Call init_account, CreateAward, RequestAward
 // Invoke
 // ============================================================================================================================
 func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
@@ -224,7 +228,7 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 		return t.Delete(stub, args)												
 	} else if function == "write" {									
 		return t.Write(stub, args)
-	} else if function == "init_account" {									
+	} else if function == "init_actor" {
 		return t.init_actor(stub, args)
 	}else if function == "CommitFund"{
 		return t.CommitFund(stub, args)
@@ -331,8 +335,8 @@ func (t *SimpleChaincode) Write(stub shim.ChaincodeStubInterface, args []string)
 func (t *SimpleChaincode) init_actor(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var err error
 
-	//       0        1      2      3
-	// "accountNo", "bob", "USD", "3500"
+	//       0        1      2
+	// "accountNo", "bob",  "3500"
 
 	if len(args) != 3 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 4")
@@ -355,7 +359,7 @@ func (t *SimpleChaincode) init_actor(stub shim.ChaincodeStubInterface, args []st
 
 	actorName := strings.ToLower(args[1])
 
-	balance, err := strconv.Atoi(args[2])
+	balance, err := strconv.ParseFloat(args[2],64)
 
 	if err != nil {
 		return nil, errors.New("3rd argument must be a numeric string")
@@ -372,17 +376,17 @@ func (t *SimpleChaincode) init_actor(stub shim.ChaincodeStubInterface, args []st
 	if res.ActorId == actorId{
 		return nil, errors.New("This account arleady exists")			
 	}
-	//amountStr := strconv.FormatFloat(ammount, 'E', -1, 64)
+	balanceStr := strconv.FormatFloat(balance, 'E', -1, 64)
 
-	newActor := Actor{}
-	newActor.ActorId = actorId
-	newActor.ActorName = actorName
-	newActor.Balance = balance
+	//newActor := Actor{}
+	//newActor.ActorId = actorId
+	//newActor.ActorName = actorName
+	//newActor.Balance = balance
 
 	//build the account json string 
-	//str := `{"actorid": "` + actorId + `", "actorName": "` + actorName + `", "balance": "` + balance + `"}`
-	jsonAsBytesActor, _ := json.Marshal(newActor)
-	err = stub.PutState(actorId, jsonAsBytesActor)
+	str := `{"actorid": "` + actorId + `", "actorName": "` + actorName + `", "balance": "` + balanceStr + `"}`
+	//jsonAsBytesActor, _ := json.Marshal(newActor)
+	err = stub.PutState(actorId, []byte(str))
 	if err != nil {
 		return nil, err
 	}
