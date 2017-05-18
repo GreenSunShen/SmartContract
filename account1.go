@@ -50,7 +50,6 @@ type Award struct {
 	AwardName      string `json:"awardname"`
 	AwardStatus    string `json:"awardstatus"`
 	AwardRequested int `json:"awardrequested"`
-	ParentAwardId  string `json:"parentawardid"`
 	Party AwardParties `json:"awardparties"`
 	Expenses []Expenditure `json:"expenditures"`
 	Reimburses []Reimbursement `json:"reimburses"`
@@ -69,11 +68,11 @@ type AwardAmount struct {
 //reimbursement (reimbursement id, status, award id, amount)
 type Reimbursement struct {
 	ReimbursementId string `json:"reimbursementid"`
-	Status          string `json:"status"`
-	AwardId         string `json:"awardid"`
 	Amount          int `json:"amount"`
-	FromUser        string `json:"fromuser"`
-	ToUser          string `json:"touser"`
+	FromActor        string `json:"fromuser"`
+	ToActor          string `json:"touser"`
+	Date            string `json:"date"`
+	ExpenditureId string `json:"expenditureid"`
 }
 
 //expenditure (expenditure id, amount, project id, date, type, reimbursement id)
@@ -83,9 +82,8 @@ type Expenditure struct {
 	Date            string `json:"date"`
 	Type            string `json:"type"`
 	Status          string `json:"status"`
-	ReimbursementId string `json:"reimbursementid"`
-	FromUser        string `json:"fromuser"`
-	ToUser          string `json:"touser"`
+	FromActor        string `json:"fromuser"`
+	ToActor          string `json:"touser"`
 }
 
 var accountIndexStr = "_accountindex" // Define an index variable to track all the accounts stored in the world state
@@ -108,16 +106,55 @@ func main() {
 // ============================================================================================================================
 func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 //------------------------------create roles----------------------------------------------
-//	// grantor info
-//	var act1 []string{}
-//	// grantee info
-//	var act2 []string{}
-//	// sub-grantee info
-//	var act3 []string{}
-//
-//	t.init_actor(stub, act1)
-//	t.init_actor(stub, act2)
-//	t.init_actor(stub, act3)
+	// grantor info
+	var act1  = make([]string, 8,8)
+	act1[0] = "101"                //ActorId
+	act1[1] = "PPM Foundation"     //ActorName
+	act1[2] = "125000"             //Comiitted
+	act1[3] = "55000"              //Reimbursed
+	act1[4] = ""                   //Awarded
+	act1[5] = ""                   //Spent
+	act1[6] = ""                   //Received
+	act1[7] = ""                   //Delegated
+
+	// grantee info
+	var act2  = make([]string, 8,8)
+	act2[0] = "102"                     //ActorId
+	act2[1] = "Stanford University"      //ActorName
+	act2[2] = ""                        //Comiitted
+	act2[3] = ""                         //Reimbursed
+	act2[4] = "125000"                 //Awarded
+	act2[5] = "23000"                  //Spent
+	act2[6] = "55000"                 //Received
+	act2[7] = "45000"                 //Delegated
+
+	// sub-grantee info
+	var act3  = make([]string, 8,8)
+	act3[0] = "103"                //ActorId
+	act3[1] = "John Hopkins University"     //ActorName
+	act3[2] = ""               //Comitted
+	act3[3] = ""               //Reimbursed
+	act3[4] = "45000"          //Awarded
+	act3[5] = "12000"          //Spent
+	act3[6] = "25000"          //Received
+	act3[7] = ""               //Delegated
+
+	// Supplier info -- shows spending form all the grantees and sub-grantees
+	var act4  = make([]string, 8,8)
+	act4[0] = "104"                //ActorId
+	act4[1] = "Dixon consulting"     //ActorName
+	act4[2] = ""               //Comitted
+	act4[3] = ""               //Reimbursed
+	act4[4] = ""          //Awarded
+	act4[5] = ""          //Spent
+	act4[6] = "35000"          //Received
+	act4[7] = ""               //Delegated
+
+
+	t.init_actor(stub, act1)
+	t.init_actor(stub, act2)
+	t.init_actor(stub, act3)
+	t.init_actor(stub, act4)
 ////----------------------------create award -------------------------------------------------
 //	var award1 []string{}
 //
@@ -135,6 +172,10 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 // Invoke
 // ============================================================================================================================
 func (t *SimpleChaincode) ReleaseFund(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	//arg[0] actor id
+	//arg[1] award id
+	//arg[2]
+	//arg[3] exp id
 	return nil, nil
 }
 
@@ -158,8 +199,8 @@ func (t *SimpleChaincode) CreateAward(stub shim.ChaincodeStubInterface, args []s
 // Invoke
 // ============================================================================================================================
 func (t *SimpleChaincode) Spend(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	//     0           1        2        3
-	// "from id"   "to id"   "amount"  "type"
+	//     0           1        2        3         4
+	// "from id"   "to id"   "amount"  "type"  "award id"
 
 	//get from actor
 	accountAAsBytes, err := stub.GetState(args[0])
@@ -185,6 +226,11 @@ func (t *SimpleChaincode) Spend(stub shim.ChaincodeStubInterface, args []string)
 		return nil, errors.New("3rd argument must be a numeric string")
 	}
 
+	//get award
+	awardAsbytes, err := stub.GetState(args[4])
+	awardPlain := Award{}
+	json.Unmarshal(awardAsbytes, &awardPlain)
+
 	//get date
 	current_time := time.Now().Local()
 
@@ -194,16 +240,28 @@ func (t *SimpleChaincode) Spend(stub shim.ChaincodeStubInterface, args []string)
 	exp.Date = string(current_time.String())
 	exp.Type = args[3]
 	exp.ExpenditureId = "ex1"
-	exp.FromUser = resA.ActorId
-	exp.ToUser = resB.ActorId
-	exp.ReimbursementId = "-1"
+	exp.FromActor = resA.ActorId
+	exp.ToActor = resB.ActorId
 
 	// compare with threshold to determine status
 	if amount > 6000{
-		exp.Status = "pending"
+		exp.Status = "Pending"
 	}else{
-		exp.Status = "auto"
+		exp.Status = "Auto"
 	}
+
+	// assign the expenditure to the award
+	expenses := awardPlain.Expenses
+	expenses = append(expenses, exp)
+	awardPlain.Expenses = expenses
+
+	//save to world state
+	awardAsbytes, _ = json.Marshal(awardPlain) //save the new index
+	err = stub.PutState(args[4], awardAsbytes)
+	if err != nil {
+		return nil, err
+	}
+
 
 	t.transfer_balance(stub, []string{args[0], args[1], args[2], "spend"})
 
@@ -261,6 +319,10 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 		return t.init_actor(stub, args)
 	} else if function == "setup"{
 		return t.SetUp(stub, args)
+	} else if function == "spend"{
+		return t.Spend(stub, args)
+	} else if function == "releasefund"{
+		return t.ReleaseFund(stub, args)
 	}
 	//else if function == "transfer_balance" {
 	//	return t.transfer_balance(stub, args)
