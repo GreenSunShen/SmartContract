@@ -22,13 +22,55 @@ type  SimpleChaincode struct {
 //	Account - Defines the structure for an account object. JSON on right tells it what JSON fields to map to
 //			  that element when reading a JSON object into the struct e.g. JSON currency -> Struct Currency
 //==============================================================================================================================
-type Account struct{
-	AccountNo string `json:"accountno"`	
-	LegalEntity string `json:"legalentity"`
-	Currency string `json:"currency"`				
-	Balance string `json:"balance"`
-	AnotherAttribute int `json:"AnotherAttribute"`
+type Account struct {
+	AccountId   string `json:"accountid"`
+	AccountName string `json:"accountname"`
+	Balance     string `json:"balance"`
 }
+
+//award (award id, award name, award status, amount_requested, parent award id(-1))
+type Award struct {
+	AwardId string `json:"awardid"`
+	AwardName string `json:"awardname"`
+	AwardStatus string `json:"awardstatus"`
+	AwardRequested int `json:"awardrequested"`
+	ParentAwardId string `json:"parentawardid"`
+}
+
+//award amount (award_amount_id, award id, award amount, grantor id)
+type AwardAmount struct {
+	AwardAmountId string `json:"awardamountid"`
+	AwardId string `json:"awardid"`
+	AwardAmount int `json:"awardamount"`
+	GrantorId string `json:"grantorid"`
+}
+
+//award parties (award party id, award id, role type, account id)
+type AwardParties struct {
+	AwardPartyId string `json:"awardpartyid"`
+	AwardId string `json:"awardid"`
+	RoleType string `json:"roletype"`
+	AccountId string `json:"accountid"`
+}
+
+//reimbursement (reimbursement id, status, award id, amount)
+type Reimbursement struct {
+	ReimbursementId string `json:"reimbursementid"`
+	Status string `json:"status"`
+	AwardId string `json:"awardid"`
+	Amount int `json:"amount"`
+}
+
+//expenditure (expenditure id, amount, project id, date, type, reimbursement id)
+type Expenditure struct {
+	ExpenditureId string `json:"expenditureid"`
+	Amount int `json:"amount"`
+	ProjectId string `json:"projectid"`
+	Date string `json:"date"`
+	Type string `json:"type"`
+	ReimbursementId string `json:"reimbursementid"`
+}
+
 
 var accountIndexStr = "_accountindex"	  // Define an index variable to track all the accounts stored in the world state
 
@@ -233,7 +275,7 @@ func (t *SimpleChaincode) init_account(stub shim.ChaincodeStubInterface, args []
 	}
 	res := Account{}
 	json.Unmarshal(accountAsBytes, &res)
-	if res.AccountNo == accountNo{
+	if res.AccountId == accountNo{
 		return nil, errors.New("This account arleady exists")			
 	}
 	amountStr := strconv.FormatFloat(ammount, 'E', -1, 64)
