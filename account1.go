@@ -28,6 +28,16 @@ type Account struct {
 	Balance     string `json:"balance"`
 }
 
+//==============================================================================================================================
+//	Actor - Defines the structure for an actor object. JSON on right tells it what JSON fields to map to
+//			  that element when reading a JSON object into the struct e.g. JSON currency -> Struct Currency
+//==============================================================================================================================
+type Actor struct {
+	ActorId   string `json:"actorid"`
+	ActorName string `json:"actorname"`
+	Balance     string `json:"balance"`
+}
+
 //award (award id, award name, award status, amount_requested, parent award id(-1))
 type Award struct {
 	AwardId string `json:"awardid"`
