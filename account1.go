@@ -34,6 +34,15 @@ type Actor struct {
 	Delegated  string `json:"delegated"`
 }
 
+//award parties (award party id, award id, role type, account id)
+type AwardParties struct {
+	GrantorId string `json:"grantorid"`
+	GranteeId string `json:"graneeid"`
+	SubgranteeId string `json:"subgranteeid"`
+	SupplierId string `json:"supplierId"`
+}
+
+
 //award (award id, award name, award status, amount_requested, parent award id(-1))
 type Award struct {
 	AwardId        string `json:"awardid"`
@@ -41,23 +50,20 @@ type Award struct {
 	AwardStatus    string `json:"awardstatus"`
 	AwardRequested int `json:"awardrequested"`
 	ParentAwardId  string `json:"parentawardid"`
+	Party AwardParties `json:"awardparties"`
+	Expenses []Expenditure `json:"expenditures"`
+	Reimburses []Reimbursement `json:"reimburses"`
 }
 
 //award amount (award_amount_id, award id, award amount, grantor id)
 type AwardAmount struct {
 	AwardAmountId string `json:"awardamountid"`
 	AwardId       string `json:"awardid"`
-	AwardAmount   int `json:"awardamount"`
+	AwardAmount   float64 `json:"awardamount"`
 	GrantorId     string `json:"grantorid"`
 }
 
-//award parties (award party id, award id, role type, account id)
-type AwardParties struct {
-	AwardPartyId string `json:"awardpartyid"`
-	AwardId      string `json:"awardid"`
-	RoleType     string `json:"roletype"`
-	AccountId    string `json:"accountid"`
-}
+
 
 //reimbursement (reimbursement id, status, award id, amount)
 type Reimbursement struct {
@@ -72,7 +78,7 @@ type Reimbursement struct {
 //expenditure (expenditure id, amount, project id, date, type, reimbursement id)
 type Expenditure struct {
 	ExpenditureId   string `json:"expenditureid"`
-	Amount          int `json:"amount"`
+	Amount          float64 `json:"amount"`
 	ProjectId       string `json:"projectid"`
 	Date            string `json:"date"`
 	Type            string `json:"type"`
@@ -97,22 +103,30 @@ func main() {
 // ============================================================================================================================
 // SetUp Function - Called after the user deploys the chain code, before demo
 // Function: create 4 actors, update AwardParty struct, update Award struct
-// Call init_account, CreateAward, RequestAward
+// Call init_account, CreateAward, <not needed>--RequestAward
 // Invoke
 // ============================================================================================================================
 func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+//------------------------------create roles----------------------------------------------
+	// grantor info
+	var act1 []string{}
+	// grantee info
+	var act2 []string{}
+	// sub-grantee info
+	var act3 []string{}
+
+	t.init_actor(stub, act1)
+	t.init_actor(stub, act2)
+	t.init_actor(stub, act3)
+//----------------------------create award -------------------------------------------------
+	var award1 []string{}
+
+	t.CreateAward(stub, award1)
+
+
 	return nil, nil
 }
 
-// ============================================================================================================================
-// CommitFund Function - Called when the grantor decided to commit the award
-// Function: update AwardAmount struct, update Actor struct (transfer balance), update Award struct (status changed),
-// update AwardParty struct (add grantor role)
-// Invoke
-// ============================================================================================================================
-func (t *SimpleChaincode) CommitFund(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	return nil, nil
-}
 
 // ============================================================================================================================
 // ReleaseFund Function - Called when the grantor approves the reimbursement
@@ -124,44 +138,18 @@ func (t *SimpleChaincode) ReleaseFund(stub shim.ChaincodeStubInterface, args []s
 	return nil, nil
 }
 
-// ============================================================================================================================
-// RequestReimbursement Function - Called when the grantee approves the reimbursement
-// Function: update Expenditure struct (status), update Reimbursement struct (status)
-// Needs from user and to user
-// Invoke
-// ============================================================================================================================
-func (t *SimpleChaincode) RequestReimbursement(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	return nil, nil
-}
+
 
 // ============================================================================================================================
 // CreateAward Function - Called when the grantee creates an award
-// Function: update Award struct, update AwardParty struct
+// Function: update Award struct, update AwardParty, update AwardAmount struct
 // Invoke
 // ============================================================================================================================
 func (t *SimpleChaincode) CreateAward(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	return nil, nil
 }
 
-// ============================================================================================================================
-// RequestAward Function - Called when the grantee request funding of an award
-// Function: update Award struct (status)
-// Necessary?
-// Invoke
-// ============================================================================================================================
-func (t *SimpleChaincode) RequestAward(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	return nil, nil
-}
 
-// ============================================================================================================================
-// AllocateSubAward Function - Called when the grantee commits sub-award to sub-grantee
-// Function: update Award struct (create a new sub-award, parent award id needs to be passed), update Account struct (balance transfer),
-// update AwardParty struct (add sub-grantee), ?? AwardAmount() ??
-// Invoke
-// ============================================================================================================================
-func (t *SimpleChaincode) AllocateSubAward(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	return nil, nil
-}
 
 // ============================================================================================================================
 // Spend Function - Called when the grantee or sub-grantee has an expenditure
@@ -170,6 +158,39 @@ func (t *SimpleChaincode) AllocateSubAward(stub shim.ChaincodeStubInterface, arg
 // Invoke
 // ============================================================================================================================
 func (t *SimpleChaincode) Spend(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	//     0           1        2        3     4
+	// "from id"   "to id"   "amount"  "type"  "date"
+
+	//get from actor
+	accountAAsBytes, err := stub.GetState(args[0])
+	if err != nil {
+		return nil, errors.New("Failed to get the first account")
+	}
+	resA := Actor{}
+	json.Unmarshal(accountAAsBytes, &resA)
+
+	accountBAsBytes, err := stub.GetState(args[1])
+	if err != nil {
+		return nil, errors.New("Failed to get the second account")
+	}
+
+	//get to actor
+	resB := Actor{}
+	json.Unmarshal(accountBAsBytes, &resB)
+
+
+	//get amount
+	amount, err := strconv.ParseFloat(args[2], 64)
+	if err != nil {
+		return nil, errors.New("3rd argument must be a numeric string")
+	}
+	exp := Expenditure{}
+	exp.Amount = amount
+
+
+
+
+
 	return nil, nil
 }
 
@@ -220,10 +241,10 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 		return t.Delete(stub, args)
 	} else if function == "write" {
 		return t.Write(stub, args)
-	} else if function == "init_actor" {
+	} else if function == "initactor" {
 		return t.init_actor(stub, args)
-	} else if function == "CommitFund" {
-		return t.CommitFund(stub, args)
+	} else if function == "setup"{
+		return t.SetUp(stub, args)
 	}
 	//else if function == "transfer_balance" {
 	//	return t.transfer_balance(stub, args)
@@ -440,19 +461,19 @@ func (t *SimpleChaincode) init_actor(stub shim.ChaincodeStubInterface, args []st
 // ============================================================================================================================
 // Transfer Balance - Create a transaction between two accounts, transfer a certain amount of balance
 // ============================================================================================================================
-/*func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	
-	//       0           1         2
-	// "accountA", "accountB", "100.20"
-
+	//     0         1         2         3
+	// "actorA", "actorB", "100.20"  "function"
 	var err error
 	var newAmountA, newAmountB float64
 
-	if len(args) < 3 {
-		return nil, errors.New("Incorrect number of arguments. Expecting 3")
+	if len(args) < 5 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 5")
 	}
 
 	amount,err := strconv.ParseFloat(args[2], 64)
+
 	if err != nil {
 		return nil, errors.New("3rd argument must be a numeric string")
 	}
@@ -461,17 +482,22 @@ func (t *SimpleChaincode) init_actor(stub shim.ChaincodeStubInterface, args []st
 	if err != nil {
 		return nil, errors.New("Failed to get the first account")
 	}
-	resA := Account{}
+	resA := Actor{}
 	json.Unmarshal(accountAAsBytes, &resA)								
 	
 	accountBAsBytes, err := stub.GetState(args[1])
 	if err != nil {
 		return nil, errors.New("Failed to get the second account")
 	}
-	resB := Account{}
-	json.Unmarshal(accountBAsBytes, &resB)											
-	
-	BalanceA,err := strconv.ParseFloat(resA.Balance, 64)
+	resB := Actor{}
+	json.Unmarshal(accountBAsBytes, &resB)
+
+	switch args[3] {
+		case "commitfund" :
+
+	default:
+	}
+	BalanceA,err := strconv.ParseFloat(resA.b, 64)
 	if err != nil {
 		return nil, err
 	}
@@ -507,4 +533,4 @@ func (t *SimpleChaincode) init_actor(stub shim.ChaincodeStubInterface, args []st
 	
 	return nil, nil
 }
-*/
+
