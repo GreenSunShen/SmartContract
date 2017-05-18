@@ -7,6 +7,7 @@ import (
 	"strings"
 	"github.com/hyperledger/fabric/core/chaincode/shim"
 	"errors"
+	"time"
 )
 
 //==============================================================================================================================
@@ -79,7 +80,6 @@ type Reimbursement struct {
 type Expenditure struct {
 	ExpenditureId   string `json:"expenditureid"`
 	Amount          float64 `json:"amount"`
-	ProjectId       string `json:"projectid"`
 	Date            string `json:"date"`
 	Type            string `json:"type"`
 	Status          string `json:"status"`
@@ -108,20 +108,20 @@ func main() {
 // ============================================================================================================================
 func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 //------------------------------create roles----------------------------------------------
-	// grantor info
-	var act1 []string{}
-	// grantee info
-	var act2 []string{}
-	// sub-grantee info
-	var act3 []string{}
-
-	t.init_actor(stub, act1)
-	t.init_actor(stub, act2)
-	t.init_actor(stub, act3)
-//----------------------------create award -------------------------------------------------
-	var award1 []string{}
-
-	t.CreateAward(stub, award1)
+//	// grantor info
+//	var act1 []string{}
+//	// grantee info
+//	var act2 []string{}
+//	// sub-grantee info
+//	var act3 []string{}
+//
+//	t.init_actor(stub, act1)
+//	t.init_actor(stub, act2)
+//	t.init_actor(stub, act3)
+////----------------------------create award -------------------------------------------------
+//	var award1 []string{}
+//
+//	t.CreateAward(stub, award1)
 
 
 	return nil, nil
@@ -158,8 +158,8 @@ func (t *SimpleChaincode) CreateAward(stub shim.ChaincodeStubInterface, args []s
 // Invoke
 // ============================================================================================================================
 func (t *SimpleChaincode) Spend(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	//     0           1        2        3     4
-	// "from id"   "to id"   "amount"  "type"  "date"
+	//     0           1        2        3
+	// "from id"   "to id"   "amount"  "type"
 
 	//get from actor
 	accountAAsBytes, err := stub.GetState(args[0])
@@ -184,12 +184,28 @@ func (t *SimpleChaincode) Spend(stub shim.ChaincodeStubInterface, args []string)
 	if err != nil {
 		return nil, errors.New("3rd argument must be a numeric string")
 	}
+
+	//get date
+	current_time := time.Now().Local()
+
+	// populate expenditure
 	exp := Expenditure{}
 	exp.Amount = amount
+	exp.Date = string(current_time.String())
+	exp.Type = args[3]
+	exp.ExpenditureId = "ex1"
+	exp.FromUser = resA.ActorId
+	exp.ToUser = resB.ActorId
+	exp.ReimbursementId = "-1"
 
+	// compare with threshold to determine status
+	if amount > 6000{
+		exp.Status = "pending"
+	}else{
+		exp.Status = "auto"
+	}
 
-
-
+	t.transfer_balance(stub, []string{args[0], args[1], args[2], "spend"})
 
 	return nil, nil
 }
@@ -493,10 +509,34 @@ func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, arg
 	json.Unmarshal(accountBAsBytes, &resB)
 
 	switch args[3] {
-		case "commitfund" :
+		case "spend" :
+			AwardA, err := strconv.ParseFloat(resA.Awarded, 64)
+			if err != nil {
+				return nil, err
+			}
+			BalanceA,err := strconv.ParseFloat(resA.Spent, 64)
+			if err != nil {
+				return nil, err
+			}
+			BalanceB,err := strconv.ParseFloat(resB.Received, 64)
+			if err != nil {
+				return nil, err
+			}
+			//Check if accountA has enough balance to transact or not
+			if ( AwardA - amount) < 0 {
+				return nil, errors.New(args[0] + " doesn't have enough balance to complete transaction")
+			}
 
+			newAmountA = BalanceA + amount
+			newAmountB =  BalanceB + amount
+			newAmountStrA := strconv.FormatFloat(newAmountA, 'f', -1, 64)
+			newAmountStrB := strconv.FormatFloat(newAmountB, 'f', -1, 64)
+
+			resA.Spent = newAmountStrA
+			resB.Received = newAmountStrB
 	default:
 	}
+	/*
 	BalanceA,err := strconv.ParseFloat(resA.b, 64)
 	if err != nil {
 		return nil, err
@@ -518,7 +558,7 @@ func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, arg
 
 	resA.Balance = newAmountStrA
 	resB.Balance = newAmountStrB
-
+*/
 	jsonAAsBytes, _ := json.Marshal(resA)
 	err = stub.PutState(args[0], jsonAAsBytes)								
 	if err != nil {
