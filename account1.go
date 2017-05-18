@@ -22,11 +22,13 @@ type  SimpleChaincode struct {
 //	Account - Defines the structure for an account object. JSON on right tells it what JSON fields to map to
 //			  that element when reading a JSON object into the struct e.g. JSON currency -> Struct Currency
 //==============================================================================================================================
-type Account struct {
-	AccountId   string `json:"accountid"`
-	AccountName string `json:"accountname"`
-	Balance     string `json:"balance"`
+
+type Actor struct {
+	ActorId   string `json:"actorid"`
+	ActorName string `json:"actorname"`
+	Balance   int  `json:"balance"`
 }
+
 
 //award (award id, award name, award status, amount_requested, parent award id(-1))
 type Award struct {
@@ -68,6 +70,7 @@ type Expenditure struct {
 	ProjectId string `json:"projectid"`
 	Date string `json:"date"`
 	Type string `json:"type"`
+	Status string `json:"status"`
 	ReimbursementId string `json:"reimbursementid"`
 }
 
@@ -83,6 +86,96 @@ func main() {
 		fmt.Printf("Error starting Simple chaincode: %s", err)
 	}
 }
+
+
+// ============================================================================================================================
+// SetUp Function - Called after the user deploys the chain code, before demo
+// Function: create 4 actors, update AwardParty struct, update Award struct
+// Call init_account, CreateAward
+// Invoke
+// ============================================================================================================================
+func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	return nil, nil
+}
+
+
+// ============================================================================================================================
+// CommitFund Function - Called when the grantor decided to commit the award
+// Function: update AwardAmount struct, update Actor struct (transfer balance), update Award struct (status changed),
+// update AwardParty struct (add grantor role)
+// Invoke
+// ============================================================================================================================
+func (t *SimpleChaincode) CommitFund(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	return nil, nil
+}
+
+
+// ============================================================================================================================
+// ReleaseFund Function - Called when the grantor approves the reimbursement
+// Function: update Expenditure struct (status), update Reimbursement struct (status), update Actor struct (transfer balance),
+// update Award struct (status changed)
+// Invoke
+// ============================================================================================================================
+func (t *SimpleChaincode) ReleaseFund(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	return nil, nil
+}
+
+
+// ============================================================================================================================
+// RequestReimbursement Function - Called when the grantee approves the reimbursement
+// Function: update Expenditure struct (status), update Reimbursement struct (status)
+// Needs from user and to user
+// Invoke
+// ============================================================================================================================
+func (t *SimpleChaincode) RequestReimbursement(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	return nil, nil
+}
+
+
+// ============================================================================================================================
+// CreateAward Function - Called when the grantee creates an award
+// Function: update Award struct, update AwardParty struct
+// Invoke
+// ============================================================================================================================
+func (t *SimpleChaincode) CreateAward(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	return nil, nil
+}
+
+
+// ============================================================================================================================
+// RequestAward Function - Called when the grantee request funding of an award
+// Function: update Award struct (status)
+// Necessary?
+// Invoke
+// ============================================================================================================================
+func (t *SimpleChaincode) RequestAward(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	return nil, nil
+}
+
+
+// ============================================================================================================================
+// AllocateSubAward Function - Called when the grantee commits sub-award to sub-grantee
+// Function: update Award struct (create a new sub-award, parent award id needs to be passed), update Account struct (balance transfer),
+// update AwardParty struct (add sub-grantee), ?? AwardAmount() ??
+// Invoke
+// ============================================================================================================================
+func (t *SimpleChaincode) AllocateSubAward(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	return nil, nil
+}
+
+
+// ============================================================================================================================
+// Spend Function - Called when the grantee or sub-grantee has an expenditure
+// Function: update Expenditure struct (create a new one), update Account struct (balance transfer),
+// Need from user and to user
+// Invoke
+// ============================================================================================================================
+func (t *SimpleChaincode) Spend(stub shim.ChaincodeStubInterface, function string, args []string) ([]byte, error) {
+	return nil, nil
+}
+
+
+
 
 // ============================================================================================================================
 // Init Function - Called when the user deploys the chaincode
@@ -132,10 +225,11 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	} else if function == "write" {									
 		return t.Write(stub, args)
 	} else if function == "init_account" {									
-		return t.init_account(stub, args)
-	} else if function == "transfer_balance" {									
-		return t.transfer_balance(stub, args)										
+		return t.init_actor(stub, args)
 	}
+	//else if function == "transfer_balance" {
+	//	return t.transfer_balance(stub, args)
+	//}
 
 	return nil, errors.New("Received unknown function invocation: " + function)
 }
@@ -232,13 +326,13 @@ func (t *SimpleChaincode) Write(stub shim.ChaincodeStubInterface, args []string)
 // ============================================================================================================================
 // Init account - create a new account, store into chaincode world state, and then append the account index
 // ============================================================================================================================
-func (t *SimpleChaincode) init_account(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (t *SimpleChaincode) init_actor(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var err error
 
 	//       0        1      2      3
 	// "accountNo", "bob", "USD", "3500"
 
-	if len(args) != 4 {
+	if len(args) != 3 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 4")
 	}
 
@@ -253,36 +347,40 @@ func (t *SimpleChaincode) init_account(stub shim.ChaincodeStubInterface, args []
 	if len(args[2]) <= 0 {
 		return nil, errors.New("3rd argument must be a non-empty string")
 	}
-	if len(args[3]) <= 0 {
-		return nil, errors.New("3rd argument must be a non-empty string")
-	}
 
-	accountNo := args[0]
 
-	legalEntity := strings.ToLower(args[1])
+	actorId := args[0]
 
-	currency := args[2]
+	actorName := strings.ToLower(args[1])
 
-	ammount, err := strconv.ParseFloat(args[3],64)
+	balance, err := strconv.Atoi(args[2])
+
 	if err != nil {
-		return nil, errors.New("4rd argument must be a numeric string")
+		return nil, errors.New("3rd argument must be a numeric string")
 	}
 
 	//check if account already exists
-	accountAsBytes, err := stub.GetState(accountNo)
+	accountAsBytes, err := stub.GetState(actorId)
 	if err != nil {
 		return nil, errors.New("Failed to get account number")
 	}
-	res := Account{}
+
+	res := Actor{}
 	json.Unmarshal(accountAsBytes, &res)
-	if res.AccountId == accountNo{
+	if res.ActorId == actorId{
 		return nil, errors.New("This account arleady exists")			
 	}
-	amountStr := strconv.FormatFloat(ammount, 'E', -1, 64)
+	//amountStr := strconv.FormatFloat(ammount, 'E', -1, 64)
+
+	newActor := Actor{}
+	newActor.ActorId = actorId
+	newActor.ActorName = actorName
+	newActor.Balance = balance
 
 	//build the account json string 
-	str := `{"accountno": "` + accountNo + `", "legalentity": "` + legalEntity + `", "currency": "` + currency + `", "balance": "` + amountStr + `"}`
-	err = stub.PutState(accountNo, []byte(str))							
+	//str := `{"actorid": "` + actorId + `", "actorName": "` + actorName + `", "balance": "` + balance + `"}`
+	jsonAsBytesActor, _ := json.Marshal(newActor)
+	err = stub.PutState(actorId, jsonAsBytesActor)
 	if err != nil {
 		return nil, err
 	}
@@ -296,7 +394,7 @@ func (t *SimpleChaincode) init_account(stub shim.ChaincodeStubInterface, args []
 	json.Unmarshal(accountsAsBytes, &accountIndex)							
 	
 	//append the index 
-	accountIndex = append(accountIndex, accountNo)	
+	accountIndex = append(accountIndex, actorId)
 	jsonAsBytes, _ := json.Marshal(accountIndex)
 	err = stub.PutState(accountIndexStr, jsonAsBytes)						
 
@@ -306,7 +404,7 @@ func (t *SimpleChaincode) init_account(stub shim.ChaincodeStubInterface, args []
 // ============================================================================================================================
 // Transfer Balance - Create a transaction between two accounts, transfer a certain amount of balance
 // ============================================================================================================================
-func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+/*func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	
 	//       0           1         2
 	// "accountA", "accountB", "100.20"
@@ -373,3 +471,4 @@ func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, arg
 	
 	return nil, nil
 }
+*/
