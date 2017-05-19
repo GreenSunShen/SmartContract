@@ -564,7 +564,7 @@ func (t *SimpleChaincode) ReleaseFund(stub shim.ChaincodeStubInterface, args []s
 
 				// create a new reimbursement
 				var remid string = "REM-"
-				ii := strconv.Itoa(reimbNumber + 1)
+				ii := strconv.Itoa(reimbNumber + 301)
 				remid += ii
 
 				current_time := time.Now().Local()
@@ -617,7 +617,44 @@ func (t *SimpleChaincode) QueryAllExpenses(stub shim.ChaincodeStubInterface, arg
 	return expsAsBytes, nil
 }
 
-//2. pending expenditure
+
+// ============================================================================================================================
+// Query Function - Called when query pending expenditure
+// Function: query all the expenditures of this award
+// Query
+// ============================================================================================================================
+func (t *SimpleChaincode) QueryPendingExpenses(stub shim.ChaincodeStubInterface, args []string) ([]byte, error){
+
+	expsIndexAsBytes, err := stub.GetState(expIndexStr)
+	if err != nil {
+		return nil, errors.New("Failed to get expenditure index")
+	}
+	var expIndex []string
+	json.Unmarshal(expsIndexAsBytes, &expIndex)
+
+
+	var expenses []Expenditure
+	for i := 0; i < len(expIndex); i++{
+		expAsBytes, err := stub.GetState(expIndex[i])
+		if err != nil {
+			return nil, errors.New("Failed to get expenditure")
+		}
+		oneExpense := Expenditure{}
+		json.Unmarshal(expAsBytes, &oneExpense)
+
+		if oneExpense.Status == "Pending"{
+			expenses = append(expenses, oneExpense)
+		}
+	}
+
+	expsAsBytes, _ := json.Marshal(expenses)
+
+	//awardAsBytes = []byte("string")
+
+	return expsAsBytes, nil
+
+
+}
 //3. all expenditure , reimbursement
 //4. all actor balance
 
@@ -659,7 +696,7 @@ func (t *SimpleChaincode) Spend(stub shim.ChaincodeStubInterface, args []string)
 
 	// populate
 	var expid string = "EXP-"
-	ii := strconv.Itoa(expNumber + 1)
+	ii := strconv.Itoa(expNumber + 201)
 	expid += ii
 
 	var expstatus string
@@ -1013,7 +1050,33 @@ func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, arg
 
 		resA.Spent = newAmountStrA
 		resB.Received = newAmountStrB
+	case "releasefund":
+		AwardA, err := strconv.ParseFloat(resA.Committed, 64)
+		if err != nil {
+			return nil, err
+		}
+		BalanceA, err := strconv.ParseFloat(resA.Reimbursed, 64)
+		if err != nil {
+			return nil, err
+		}
+		BalanceB, err := strconv.ParseFloat(resB.Received, 64)
+		if err != nil {
+			return nil, err
+		}
+		//Check if accountA has enough balance to transact or not
+		if ( AwardA - amount) < 0 {
+			return nil, errors.New(args[0] + " doesn't have enough balance to complete transaction")
+		}
+
+		newAmountA = BalanceA + amount
+		newAmountB = BalanceB + amount
+		newAmountStrA := strconv.FormatFloat(newAmountA, 'f', -1, 64)
+		newAmountStrB := strconv.FormatFloat(newAmountB, 'f', -1, 64)
+
+		resA.Reimbursed = newAmountStrA
+		resB.Received = newAmountStrB
 	default:
+
 	}
 	/*
 	BalanceA,err := strconv.ParseFloat(resA.b, 64)
