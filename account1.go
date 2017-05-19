@@ -687,10 +687,10 @@ func (t *SimpleChaincode) QueryBlockChain(stub shim.ChaincodeStubInterface, args
 	}
 
 	reimbsAsBytes, _ := json.Marshal(reimbursements)
-	resultAsBytes := append(expsAsBytes, reimbsAsBytes...)
+	expsAsBytes = append(expsAsBytes, reimbsAsBytes...)
 
 
-	return resultAsBytes, nil
+	return expsAsBytes, nil
 }
 
 
