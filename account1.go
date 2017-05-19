@@ -758,7 +758,7 @@ func (t *SimpleChaincode) Spend(stub shim.ChaincodeStubInterface, args []string)
 	//get amount
 	amount, err := strconv.ParseFloat(args[2], 64)
 	if err != nil {
-		return nil, errors.New("3rd argument must be a numeric string")
+		return nil, errors.New(args[2])
 	}
 
 	//get date
