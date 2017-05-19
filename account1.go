@@ -551,7 +551,7 @@ func (t *SimpleChaincode) ReleaseFund(stub shim.ChaincodeStubInterface, args []s
 		}
 	}
 
-	return nil, nil
+	return []byte("ReleaseFundDone!"), nil
 }
 
 // ============================================================================================================================
