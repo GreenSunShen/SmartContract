@@ -359,10 +359,9 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 		return t.Spend(stub, args)
 	} else if function == "releasefund"{
 		return t.ReleaseFund(stub, args)
+	} else if function == "transferbalance" {
+		return t.transfer_balance(stub, args)
 	}
-	//else if function == "transfer_balance" {
-	//	return t.transfer_balance(stub, args)
-	//}
 
 	return nil, errors.New("Received unknown function invocation: " + function)
 }
@@ -582,8 +581,8 @@ func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, arg
 	var err error
 	var newAmountA, newAmountB float64
 
-	if len(args) < 5 {
-		return nil, errors.New("Incorrect number of arguments. Expecting 5")
+	if len(args) < 4 {
+		return nil, errors.New("Incorrect number of arguments. Expecting 4")
 	}
 
 	amount,err := strconv.ParseFloat(args[2], 64)
