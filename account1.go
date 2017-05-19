@@ -632,8 +632,8 @@ func (t *SimpleChaincode) QueryPendingExpenses(stub shim.ChaincodeStubInterface,
 // ============================================================================================================================
 func (t *SimpleChaincode) QueryBlockChain(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	//threshold date
-	//thresholdDate := time.Date(
-	//	2017, 05, 14, 20, 34, 58, 651387237, time.UTC)
+	thresholdDate := time.Date(
+		2017, 05, 14, 20, 34, 58, 651387237, time.UTC)
 
 	// get all expenditure index
 	expsIndexAsBytes, err := stub.GetState(expIndexStr)
@@ -642,26 +642,29 @@ func (t *SimpleChaincode) QueryBlockChain(stub shim.ChaincodeStubInterface, args
 	}
 	var expIndex []string
 	json.Unmarshal(expsIndexAsBytes, &expIndex)
-
-	var expenses []Expenditure
-	for i := 0; i < len(expIndex); i++ {
-		expAsBytes, err := stub.GetState(expIndex[i])
+        var res []byte
+	//var expenses []Expenditure
+	//for i := 0; i < len(expIndex); i++ {
+		expAsBytes, err := stub.GetState(expIndex[0])
 		if err != nil {
 			return nil, errors.New("Failed to get expenditure")
 		}
 		oneExpense := Expenditure{}
 		json.Unmarshal(expAsBytes, &oneExpense)
-		//dateStr := oneExpense.Date
-		//date, _ := time.Parse("2006-01-02", dateStr)
-		//diff := date.Sub(thresholdDate)
-		//if  diff > 0{
-		//	expenses = append(expenses, oneExpense)
-		//}
-		expenses = append(expenses, oneExpense)
+		dateStr := oneExpense.Date
+		date, _ := time.Parse("2006-01-02", dateStr)
+		diff := date.Sub(thresholdDate)
+		if  diff > 0{
+			//expenses = append(expenses, oneExpense)
+			res = []byte("true")
+		} else {
+			res = []byte("false")
+		}
 
-	}
-	expsAsBytes, _ := json.Marshal(expenses)
 
+	//}
+	//expsAsBytes, _ := json.Marshal(expenses)
+/*
 	// get all reimbursement index
 	reimbsIndexAsBytes, err := stub.GetState(reimbIndexStr)
 	if err != nil {
@@ -678,21 +681,22 @@ func (t *SimpleChaincode) QueryBlockChain(stub shim.ChaincodeStubInterface, args
 		}
 		oneReimburse := Reimbursement{}
 		json.Unmarshal(reimbAsBytes, &oneReimburse)
-		//dateStr := oneReimburse.Date
-		//date, _ := time.Parse("2006-01-02", dateStr)
-		//diff := date.Sub(thresholdDate)
-		//if diff > 0{
-		//	reimbursements = append(reimbursements, oneReimburse)
-		//}
-		reimbursements = append(reimbursements, oneReimburse)
+		dateStr := oneReimburse.Date
+		date, err := time.Parse("2006-01-02", dateStr)
+		diff := date.Sub(thresholdDate)
+		if diff > 0{
+			reimbursements = append(reimbursements, oneReimburse)
+		}
+
 
 	}
 
 	reimbsAsBytes, _ := json.Marshal(reimbursements)
 	expsAsBytes = append(expsAsBytes, reimbsAsBytes...)
+*/
 
-
-	return expsAsBytes, nil
+	//return expsAsBytes, nil
+	return res, nil
 }
 
 
