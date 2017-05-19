@@ -378,7 +378,9 @@ func (t *SimpleChaincode) ReleaseFund(stub shim.ChaincodeStubInterface, args []s
 	//}
 	//
 	//expenseNumber := len(expenseIds)
-	//
+
+
+
 
 
 
@@ -415,11 +417,14 @@ func (t *SimpleChaincode) QueryAllExpenses(stub shim.ChaincodeStubInterface, arg
 		return nil, errors.New("Failed to get award.")
 	}
 
-	awardPlain := Award{}
-	json.Unmarshal(awardAsBytes, &awardPlain)
+	//awardPlain := Award{}
+	//json.Unmarshal(awardAsBytes, &awardPlain)
+	//
+	//expenses := awardPlain.Expenses
+	//awardAsBytes, _ = json.Marshal(expenses)
 
-	expenses := awardPlain.Expenses
-	awardAsBytes, _ = json.Marshal(expenses)
+
+	awardAsBytes = []byte("string")
 
 	return awardAsBytes, nil
 }
