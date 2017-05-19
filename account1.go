@@ -656,8 +656,17 @@ func (t *SimpleChaincode) QueryPendingExpenses(stub shim.ChaincodeStubInterface,
 
 }
 //3. all expenditure , reimbursement
-//4. all actor balance
 
+// ============================================================================================================================
+// Query Function - Called when query pending expenditure
+// Function: query all the expenditures of this award
+// Query
+// ============================================================================================================================
+func (t *SimpleChaincode) QueryBlockChain(stub shim.ChaincodeStubInterface, args []string) ([]byte, error){
+	return nil, nil
+}
+
+//4. all actor balance
 // ============================================================================================================================
 // Spend Function - Called when the grantee or sub-grantee has an expenditure
 // Function: update Expenditure struct (create a new one), update Account struct (balance transfer),
@@ -792,10 +801,9 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 		return t.Spend(stub, args)
 	} else if function == "releasefund" {
 		return t.ReleaseFund(stub, args)
+	} else if function == "transferbalance" {
+		return t.transfer_balance(stub, args)
 	}
-	//else if function == "transferbalance" {
-	//	return t.transfer_balance(stub, args)
-	//}
 
 	return nil, errors.New("Received unknown function invocation: " + function)
 }
@@ -810,6 +818,8 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 		return t.read(stub, args)
 	} else if function == "queryallexpenses" {
 		return t.QueryAllExpenses(stub, args)
+	}else if function == "querypendingexpenses"{
+		return t.QueryPendingExpenses(stub, args)
 	}
 	fmt.Println("query did not find func: " + function) //error
 
