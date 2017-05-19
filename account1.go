@@ -151,7 +151,7 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 
 	exp1[0] = "EXP-201"    //ExpenditureId
 	exp1[1] = "3000"       //Amount
-	exp1[2] = "05-02-2017" //Date
+	exp1[2] = "2017-05-02" //Date
 	exp1[3] = "Travel"     //Type
 	exp1[4] = "Approved"   //Status
 	exp1[5] = "ACT-102"    //FromActor --Grantee spending
@@ -159,7 +159,7 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 
 	exp2[0] = "EXP-202"    //ExpenditureId
 	exp2[1] = "8000"       //Amount
-	exp2[2] = "05-03-2017" //Date
+	exp2[2] = "2017-05-03" //Date
 	exp2[3] = "Equipment"  //Type
 	exp2[4] = "Pending"    //Status
 	exp2[5] = "ACT-102"    //FromActor --Grantee spending
@@ -167,7 +167,7 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 
 	exp3[0] = "EXP-203"    //ExpenditureId
 	exp3[1] = "4000"       //Amount
-	exp3[2] = "05-04-2017" //Date
+	exp3[2] = "2017-05-04" //Date
 	exp3[3] = "Training"   //Type
 	exp3[4] = "Approved"   //Status
 	exp3[5] = "ACT-102"    //FromActor --Grantee spending
@@ -175,7 +175,7 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 
 	exp4[0] = "EXP-204"          //ExpenditureId
 	exp4[1] = "3000"             //Amount
-	exp4[2] = "05-09-2017"       //Date
+	exp4[2] = "2017-05-09"       //Date
 	exp4[3] = "Software License" //Type
 	exp4[4] = "Approved"         //Status
 	exp4[5] = "ACT-102"          //FromActor --Grantee spending
@@ -183,7 +183,7 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 
 	exp5[0] = "EXP-205"    //ExpenditureId
 	exp5[1] = "5000"       //Amount
-	exp5[2] = "05-11-2017" //Date
+	exp5[2] = "2017-05-11" //Date
 	exp5[3] = "Specimens"  //Type
 	exp5[4] = "Approved"   //Status
 	exp5[5] = "ACT-102"    //FromActor --Grantee spending
@@ -191,7 +191,7 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 
 	exp6[0] = "EXP-206"     //ExpenditureId
 	exp6[1] = "2000"        //Amount
-	exp6[2] = "05-12-2017"  //Date
+	exp6[2] = "2017-05-12"  //Date
 	exp6[3] = "Consultancy" //Type
 	exp6[4] = "Approved"    //Status
 	exp6[5] = "ACT-103"     //FromActor --Grantee spending
@@ -199,7 +199,7 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 
 	exp7[0] = "EXP-207"    //ExpenditureId
 	exp7[1] = "7500"       //Amount
-	exp7[2] = "05-15-2017" //Date
+	exp7[2] = "2017-05-15" //Date
 	exp7[3] = "Equipment"  //Type
 	exp7[4] = "Pending"    //Status
 	exp7[5] = "ACT-103"    //FromActor --Grantee spending
@@ -207,7 +207,7 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 
 	exp8[0] = "EXP-208"    //ExpenditureId
 	exp8[1] = "1000"       //Amount
-	exp8[2] = "05-16-2017" //Date
+	exp8[2] = "2017-05-16" //Date
 	exp8[3] = "Travel"     //Type
 	exp8[4] = "Approved"   //Status
 	exp8[5] = "ACT-103"    //FromActor --Grantee spending
@@ -215,7 +215,7 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 
 	exp9[0] = "EXP-209"    //ExpenditureId
 	exp9[1] = "1500"       //Amount
-	exp9[2] = "05-19-2017" //Date
+	exp9[2] = "2017-05-19" //Date
 	exp9[3] = "Training"   //Type
 	exp9[4] = "Approved"   //Status
 	exp9[5] = "ACT-103"    //FromActor --Grantee spending
@@ -238,49 +238,49 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 	rem1[1] = "3000"       //Amount
 	rem1[2] = "ACT-101"    //FromActor
 	rem1[3] = "ACT-102"    //ToActor
-	rem1[4] = "05-02-2017" //Date
+	rem1[4] = "2017-05-02" //Date
 	rem1[5] = "EXP-201"    //ExpenditureId
 
 	rem2[0] = "REM-302"    //ReimbursementId
 	rem2[1] = "4000"       //Amount
 	rem2[2] = "ACT-101"    //FromActor
 	rem2[3] = "ACT-102"    //ToActor
-	rem2[4] = "05-04-2017" //Date
+	rem2[4] = "2017-05-04" //Date
 	rem2[5] = "EXP-203"    //ExpenditureId
 
 	rem3[0] = "REM-303"    //ReimbursementId
 	rem3[1] = "3000"       //Amount
 	rem3[2] = "ACT-101"    //FromActor
 	rem3[3] = "ACT-102"    //ToActor
-	rem3[4] = "05-09-2017" //Date
+	rem3[4] = "2017-05-09" //Date
 	rem3[5] = "EXP-204"    //ExpenditureId
 
 	rem4[0] = "REM-304"    //ReimbursementId
 	rem4[1] = "5000"       //Amount
 	rem4[2] = "ACT-101"    //FromActor
 	rem4[3] = "ACT-102"    //ToActor
-	rem4[4] = "05-11-2017" //Date
+	rem4[4] = "2017-05-11" //Date
 	rem4[5] = "EXP-205"    //ExpenditureId
 
 	rem5[0] = "REM-305"    //ReimbursementId
 	rem5[1] = "2000"       //Amount
 	rem5[2] = "ACT-102"    //FromActor
 	rem5[3] = "ACT-103"    //ToActor
-	rem5[4] = "05-12-2017" //Date
+	rem5[4] = "2017-05-12" //Date
 	rem5[5] = "EXP-206"    //ExpenditureId
 
 	rem6[0] = "REM-306"    //ReimbursementId
 	rem6[1] = "1000"       //Amount
 	rem6[2] = "ACT-102"    //FromActor
 	rem6[3] = "ACT-103"    //ToActor
-	rem6[4] = "05-16-2017" //Date
+	rem6[4] = "2017-05-16" //Date
 	rem6[5] = "EXP-208"    //ExpenditureId
 
 	rem7[0] = "REM-307"    //ReimbursementId
 	rem7[1] = "1500"       //Amount
 	rem7[2] = "ACT-102"    //FromActor
 	rem7[3] = "ACT-103"    //ToActor
-	rem7[4] = "05-19-2017" //Date
+	rem7[4] = "2017-05-19" //Date
 	rem7[5] = "EXP-209"    //ExpenditureId
 
 	t.init_reimbursement(stub, rem1)
