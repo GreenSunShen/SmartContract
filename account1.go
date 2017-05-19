@@ -551,7 +551,7 @@ func (t *SimpleChaincode) ReleaseFund(stub shim.ChaincodeStubInterface, args []s
 		}
 	}
 
-	return []byte("ReleaseFundDone!"), nil
+	return nil, nil
 }
 
 // ============================================================================================================================
@@ -799,7 +799,7 @@ func (t *SimpleChaincode) Spend(stub shim.ChaincodeStubInterface, args []string)
 		current_time := time.Now().Local()
 		t.init_reimbursement(stub, []string{remid, strconv.FormatFloat(amount, 'f', -1, 64),"ACT-101", resA.ActorId, current_time.String(), expid})
 	}
-	return []byte("SpendIsDone!"), nil
+	return nil, nil
 }
 
 // ============================================================================================================================
