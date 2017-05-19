@@ -642,10 +642,10 @@ func (t *SimpleChaincode) QueryBlockChain(stub shim.ChaincodeStubInterface, args
 	}
 	var expIndex []string
 	json.Unmarshal(expsIndexAsBytes, &expIndex)
-        var res []byte
-	//var expenses []Expenditure
-	//for i := 0; i < len(expIndex); i++ {
-		expAsBytes, err := stub.GetState(expIndex[0])
+        //var res []byte
+	var expenses []Expenditure
+	for i := 0; i < len(expIndex); i++ {
+		expAsBytes, err := stub.GetState(expIndex[i])
 		if err != nil {
 			return nil, errors.New("Failed to get expenditure")
 		}
@@ -653,21 +653,18 @@ func (t *SimpleChaincode) QueryBlockChain(stub shim.ChaincodeStubInterface, args
 		json.Unmarshal(expAsBytes, &oneExpense)
 		dateStr := oneExpense.Date
 		date, err := time.Parse("2006-01-02", dateStr)
-	if err != nil {
-		return nil, errors.New(dateStr)
-	}
+		if err != nil {
+			return nil, errors.New(dateStr)
+		}
 		diff := date.Sub(thresholdDate)
-		if  diff > 0{
-			//expenses = append(expenses, oneExpense)
-			res = []byte("true")
-		} else {
-			res = []byte("false")
+		if  diff > 0 {
+			expenses = append(expenses, oneExpense)
 		}
 
 
-	//}
-	//expsAsBytes, _ := json.Marshal(expenses)
-/*
+	}
+	expsAsBytes, _ := json.Marshal(expenses)
+
 	// get all reimbursement index
 	reimbsIndexAsBytes, err := stub.GetState(reimbIndexStr)
 	if err != nil {
@@ -696,10 +693,10 @@ func (t *SimpleChaincode) QueryBlockChain(stub shim.ChaincodeStubInterface, args
 
 	reimbsAsBytes, _ := json.Marshal(reimbursements)
 	expsAsBytes = append(expsAsBytes, reimbsAsBytes...)
-*/
 
-	//return expsAsBytes, nil
-	return res, err
+
+	return expsAsBytes, nil
+	//return res, nil
 }
 
 
