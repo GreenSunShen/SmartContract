@@ -652,7 +652,8 @@ func (t *SimpleChaincode) QueryBlockChain(stub shim.ChaincodeStubInterface, args
 		oneExpense := Expenditure{}
 		dateStr := oneExpense.Date
 		date, _ := time.Parse("2006-01-02", dateStr)
-		if diff := date.Sub(thresholdDate); diff > 0{
+		diff := date.Sub(thresholdDate)
+		if  diff > 0{
 			json.Unmarshal(expAsBytes, &oneExpense)
 			expenses = append(expenses, oneExpense)
 		}
@@ -677,7 +678,8 @@ func (t *SimpleChaincode) QueryBlockChain(stub shim.ChaincodeStubInterface, args
 		oneReimburse := Reimbursement{}
 		dateStr := oneReimburse.Date
 		date, _ := time.Parse("2006-01-02", dateStr)
-		if diff := date.Sub(thresholdDate); diff > 0{
+		diff := date.Sub(thresholdDate)
+		if diff > 0{
 			json.Unmarshal(reimbAsBytes, &oneReimburse)
 			reimbursements = append(reimbursements, oneReimburse)
 		}
