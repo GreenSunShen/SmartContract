@@ -799,7 +799,7 @@ func (t *SimpleChaincode) Spend(stub shim.ChaincodeStubInterface, args []string)
 		current_time := time.Now().Local()
 		t.init_reimbursement(stub, []string{remid, strconv.FormatFloat(amount, 'f', -1, 64),"ACT-101", resA.ActorId, current_time.String(), expid})
 	}
-	return nil, nil
+	return []byte("SpendIsDone!"), nil
 }
 
 // ============================================================================================================================
