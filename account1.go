@@ -871,6 +871,10 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 		return t.QueryAllExpenses(stub, args)
 	} else if function == "querypendingexpenses" {
 		return t.QueryPendingExpenses(stub, args)
+	} else if function == "queryblockchain"{
+		return t.QueryBlockChain(stub, args)
+	} else if function == "querywallet"{
+		return t.QueryWallet(stub, args)
 	}
 	fmt.Println("query did not find func: " + function) //error
 
