@@ -531,7 +531,7 @@ func (t *SimpleChaincode) ReleaseFund(stub shim.ChaincodeStubInterface, args []s
 				//TODO CHECK IF THE EXP STATUS IS "Pending"
 
 				// transfer balance
-				t.transfer_balance(stub, []string{args[0], oneExp.FromActor, oneExp.Amount, "releasefund"})
+				t.transfer_balance(stub, []string{args[0], oneExp.FromActor, oneExp.Amount, "fund"})
 
 				// change exp status
 				oneExp.Status = "Approved"
@@ -1113,7 +1113,7 @@ func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, arg
 		resA.Spent = newAmountStrA
 		resB.Received = newAmountStrB
 */
-	case "releasefund":
+	case "fund":
 		AwardA, err := strconv.ParseFloat(resA.Committed, 64)
 		if err != nil {
 			return []byte("error in resA.Committed"), err
