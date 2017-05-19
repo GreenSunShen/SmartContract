@@ -1127,12 +1127,10 @@ func (t *SimpleChaincode) Transfer_balance(stub shim.ChaincodeStubInterface, arg
 			return nil, err
 		}
 		//Check if accountA has enough balance to transact or not
-		//if  AwardA - amount < 0 {
-		//	return nil, errors.New(args[0] + " doesn't have enough balance to complete transaction")
-		//}
-		if AwardA > 0 {
-
+		if  AwardA - amount < 0 {
+			return nil, errors.New(args[0] + " doesn't have enough balance to complete transaction")
 		}
+
 
 		newAmountA = BalanceA + amount
 		newAmountB = BalanceB + amount
