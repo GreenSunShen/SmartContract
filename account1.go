@@ -1027,7 +1027,7 @@ func (t *SimpleChaincode) Init_actor(stub shim.ChaincodeStubInterface, args []st
 	//newActor.Balance = balance
 
 	//build the account json string 
-	str := `{"actorid": "` + actorId + `", "actorName": "` + actorName + `", "comitted": "` + committedStr + `", "reimbursed": "` + reimbursedStr + `", "awarded": "` + awardedStr + `", "spent": "` + spentStr + `", "received": "` + receivedStr + `", "delegated": "` + delegatedStr + `"}`
+	str := `{"actorid": "` + actorId + `", "actorName": "` + actorName + `", "committed": "` + committedStr + `", "reimbursed": "` + reimbursedStr + `", "awarded": "` + awardedStr + `", "spent": "` + spentStr + `", "received": "` + receivedStr + `", "delegated": "` + delegatedStr + `"}`
 	//jsonAsBytesActor, _ := json.Marshal(newActor)
 	err = stub.PutState(actorId, []byte(str))
 	if err != nil {
