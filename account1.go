@@ -791,7 +791,14 @@ func (t *SimpleChaincode) Spend(stub shim.ChaincodeStubInterface, args []string)
 
 	/*If the status of this exp is "Approved", then a reimbursement gonna auto generated*/
 	//TODO CALL INIT_REIMBURSEMENT TO GENERATE A NEW REIMBURSEMENT
+	if expstatus == "Approved"{
+		var remid string = "REM-"
+		ii := strconv.Itoa(reimbNumber + 301)
+		remid += ii
 
+		current_time := time.Now().Local()
+		t.init_reimbursement(stub, []string{remid, strconv.FormatFloat(amount, 'f', -1, 64),"ACT-101", resA.ActorId, current_time.String(), expid})
+	}
 	return nil, nil
 }
 
