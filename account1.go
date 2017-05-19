@@ -174,8 +174,10 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 func (t *SimpleChaincode) ReleaseFund(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	//arg[0] actor id
 	//arg[1] award id
-	//arg[2]
-	//arg[3] exp id
+	//arg[3] ... exp id
+
+
+
 	return nil, nil
 }
 
@@ -197,13 +199,28 @@ func (t *SimpleChaincode) CreateAward(stub shim.ChaincodeStubInterface, args []s
 // ============================================================================================================================
 func (t *SimpleChaincode) QueryAllExpenses(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	// 0 award id
+	if len(args) != 1{
+		return nil, errors.New("Number of arguments is not correct. Expected 1")
+	}
+	if len(args[0]) <= 0 {
+		return nil, errors.New("1st argument must be a non-empty string")
+	}
 
-	return nil, nil
+	awardAsBytes, err := stub.GetState(args[0])
+	if err != nil{
+		return nil, errors.New("Failed to get award.")
+	}
+
+	awardPlain := Award{}
+	json.Unmarshal(awardAsBytes, &awardPlain)
+
+	expenses := awardPlain.Expenses
+	awardAsBytes, _ = json.Marshal(expenses)
+
+	return awardAsBytes, nil
 }
 
 
-
-//1. expenditure all
 //2. pending expenditure
 //3. all expenditure , reimbursement
 //4. all actor balance
@@ -282,7 +299,7 @@ func (t *SimpleChaincode) Spend(stub shim.ChaincodeStubInterface, args []string)
 	}
 
 
-	//t.transfer_balance(stub, []string{args[0], args[1], args[2], "spend"})
+	t.transfer_balance(stub, []string{args[0], args[1], args[2], "spend"})
 
 	return nil, nil
 }
