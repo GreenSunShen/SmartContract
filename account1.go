@@ -654,7 +654,7 @@ func (t *SimpleChaincode) QueryBlockChain(stub shim.ChaincodeStubInterface, args
 		dateStr := oneExpense.Date
 		date, err := time.Parse("2006-01-02", dateStr)
 	if err != nil {
-		return nil, errors.New("Failed to parse string to date.")
+		return nil, errors.New(dateStr)
 	}
 		diff := date.Sub(thresholdDate)
 		if  diff > 0{
