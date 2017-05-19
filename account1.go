@@ -240,15 +240,15 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 	exp9[5] = "ACT-103"                   //FromActor --Grantee spending
 	exp9[6] = "ACT-104"
 
-	//t.init_expenditure(stub, exp1)
-	//t.init_expenditure(stub, exp2)
-	//t.init_expenditure(stub, exp3)
-	//t.init_expenditure(stub, exp4)
-	//t.init_expenditure(stub, exp5)
-	//t.init_expenditure(stub, exp6)
-	//t.init_expenditure(stub, exp7)
-	//t.init_expenditure(stub, exp8)
-	//t.init_expenditure(stub, exp9)
+	t.init_expenditure(stub, exp1)
+	t.init_expenditure(stub, exp2)
+	t.init_expenditure(stub, exp3)
+	t.init_expenditure(stub, exp4)
+	t.init_expenditure(stub, exp5)
+	t.init_expenditure(stub, exp6)
+	t.init_expenditure(stub, exp7)
+	t.init_expenditure(stub, exp8)
+	t.init_expenditure(stub, exp9)
 ////----------------------------create award -------------------------------------------------
 //	var award1 []string{}
 //
@@ -372,7 +372,14 @@ func (t *SimpleChaincode) ReleaseFund(stub shim.ChaincodeStubInterface, args []s
 	//arg[1] award id
 	//arg[2] ... exp id
 	//var expenseIds []string
-	//for i = 2;
+	//
+	//for i := 2; i < len(args); i++{
+	//	expenseIds = append(expenseIds, args[i])
+	//}
+	//
+	//expenseNumber := len(expenseIds)
+	//
+
 
 
 	return nil, nil
