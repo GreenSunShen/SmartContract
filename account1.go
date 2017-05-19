@@ -35,7 +35,6 @@ type Actor struct {
 	Delegated  string `json:"delegated"`
 }
 
-
 //reimbursement (reimbursement id, status, award id, amount)
 type Reimbursement struct {
 	ReimbursementId string `json:"reimbursementid"`
@@ -58,8 +57,8 @@ type Expenditure struct {
 }
 
 var accountIndexStr = "_accountindex" // Define an index variable to track all the actors stored in the world state
-var expIndexStr ="_expindex" // Define an index variable to track all the expenditures stored in the world state
-var reimbIndexStr = "_reimbindex" // Define an index variable to track all the reimbursements stored in the world state
+var expIndexStr = "_expindex"         // Define an index variable to track all the expenditures stored in the world state
+var reimbIndexStr = "_reimbindex"     // Define an index variable to track all the reimbursements stored in the world state
 var expNumber int = 0
 var reimbNumber int = 0
 
@@ -84,8 +83,6 @@ var rem5 = make([]string, 6, 6)
 var rem6 = make([]string, 6, 6)
 var rem7 = make([]string, 6, 6)
 
-
-
 // ============================================================================================================================
 //  Main - main - Starts up the chaincode
 // ============================================================================================================================
@@ -105,45 +102,44 @@ func main() {
 func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	//------------------------------create roles----------------------------------------------
 	// grantor info
-	act1[0] = "ACT-101"                //ActorId
-	act1[1] = "PPM Foundation"     //ActorName
-	act1[2] = "125000"             //Comiitted
-	act1[3] = "19500"              //Reimbursed
-	act1[4] = "-1"                   //Awarded
-	act1[5] = "-1"                   //Spent
-	act1[6] = "-1"                   //Received
-	act1[7] = "-1"                   //Delegated
+	act1[0] = "ACT-101"        //ActorId
+	act1[1] = "PPM Foundation" //ActorName
+	act1[2] = "125000"         //Comiitted
+	act1[3] = "19500"          //Reimbursed
+	act1[4] = "-1"             //Awarded
+	act1[5] = "-1"             //Spent
+	act1[6] = "-1"             //Received
+	act1[7] = "-1"             //Delegated
 
 	// grantee info
-	act2[0] = "ACT-102"                     //ActorId
-	act2[1] = "Stanford University"      //ActorName
-	act2[2] = "-1"                        //Comiitted
-	act2[3] = "-1"                         //Reimbursed
-	act2[4] = "125000"                 //Awarded
-	act2[5] = "23000"                  //Spent
-	act2[6] = "10000"                 //Received
-	act2[7] = "45000"                 //Delegated
+	act2[0] = "ACT-102"             //ActorId
+	act2[1] = "Stanford University" //ActorName
+	act2[2] = "-1"                  //Comiitted
+	act2[3] = "-1"                  //Reimbursed
+	act2[4] = "125000"              //Awarded
+	act2[5] = "23000"               //Spent
+	act2[6] = "10000"               //Received
+	act2[7] = "45000"               //Delegated
 
 	// sub-grantee info
-	act3[0] = "ACT-103"                //ActorId
-	act3[1] = "John Hopkins University"     //ActorName
-	act3[2] = "-1"               //Comiitted
-	act3[3] = "-1"               //Reimbursed
-	act3[4] = "45000"          //Awarded
-	act3[5] = "12000"          //Spent
-	act3[6] = "9500"          //Received
-	act3[7] = "-1"               //Delegated
+	act3[0] = "ACT-103"                 //ActorId
+	act3[1] = "John Hopkins University" //ActorName
+	act3[2] = "-1"                      //Comiitted
+	act3[3] = "-1"                      //Reimbursed
+	act3[4] = "45000"                   //Awarded
+	act3[5] = "12000"                   //Spent
+	act3[6] = "9500"                    //Received
+	act3[7] = "-1"                      //Delegated
 
 	// Supplier info -- shows spending form all the grantees and sub-grantees
-	act4[0] = "ACT-104"                //ActorId
-	act4[1] = "Dixon consulting"     //ActorName
+	act4[0] = "ACT-104"          //ActorId
+	act4[1] = "Dixon consulting" //ActorName
 	act4[2] = "-1"               //Comiitted
 	act4[3] = "-1"               //Reimbursed
-	act4[4] = "-1"          //Awarded
-	act4[5] = "-1"          //Spent
-	act4[6] = "35000"          //Received
+	act4[4] = "-1"               //Awarded
+	act4[5] = "-1"               //Spent
+	act4[6] = "35000"            //Received
 	act4[7] = "-1"               //Delegated
-
 
 	t.init_actor(stub, act1)
 	t.init_actor(stub, act2)
@@ -161,7 +157,6 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 	exp1[5] = "ACT-102"    //FromActor --Grantee spending
 	exp1[6] = "ACT-104"    //ToActor   --Supplier receiving the spending
 
-
 	exp2[0] = "EXP-202"    //ExpenditureId
 	exp2[1] = "8000"       //Amount
 	exp2[2] = "05-03-2017" //Date
@@ -169,7 +164,6 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 	exp2[4] = "Pending"    //Status
 	exp2[5] = "ACT-102"    //FromActor --Grantee spending
 	exp2[6] = "ACT-104"    //ToActor   --Supplier receiving the spending
-
 
 	exp3[0] = "EXP-203"    //ExpenditureId
 	exp3[1] = "4000"       //Amount
@@ -179,7 +173,6 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 	exp3[5] = "ACT-102"    //FromActor --Grantee spending
 	exp3[6] = "ACT-104"
 
-
 	exp4[0] = "EXP-204"          //ExpenditureId
 	exp4[1] = "3000"             //Amount
 	exp4[2] = "05-09-2017"       //Date
@@ -187,7 +180,6 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 	exp4[4] = "Approved"         //Status
 	exp4[5] = "ACT-102"          //FromActor --Grantee spending
 	exp4[6] = "ACT-104"
-
 
 	exp5[0] = "EXP-205"    //ExpenditureId
 	exp5[1] = "5000"       //Amount
@@ -197,7 +189,6 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 	exp5[5] = "ACT-102"    //FromActor --Grantee spending
 	exp5[6] = "ACT-104"
 
-
 	exp6[0] = "EXP-206"     //ExpenditureId
 	exp6[1] = "2000"        //Amount
 	exp6[2] = "05-12-2017"  //Date
@@ -205,7 +196,6 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 	exp6[4] = "Approved"    //Status
 	exp6[5] = "ACT-103"     //FromActor --Grantee spending
 	exp6[6] = "ACT-104"
-
 
 	exp7[0] = "EXP-207"    //ExpenditureId
 	exp7[1] = "7500"       //Amount
@@ -215,7 +205,6 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 	exp7[5] = "ACT-103"    //FromActor --Grantee spending
 	exp7[6] = "ACT-104"
 
-
 	exp8[0] = "EXP-208"    //ExpenditureId
 	exp8[1] = "1000"       //Amount
 	exp8[2] = "05-16-2017" //Date
@@ -223,7 +212,6 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 	exp8[4] = "Approved"   //Status
 	exp8[5] = "ACT-103"    //FromActor --Grantee spending
 	exp8[6] = "ACT-104"
-
 
 	exp9[0] = "EXP-209"    //ExpenditureId
 	exp9[1] = "1500"       //Amount
@@ -253,14 +241,12 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 	rem1[4] = "05-02-2017" //Date
 	rem1[5] = "EXP-201"    //ExpenditureId
 
-
 	rem2[0] = "REM-302"    //ReimbursementId
 	rem2[1] = "4000"       //Amount
 	rem2[2] = "ACT-101"    //FromActor
 	rem2[3] = "ACT-102"    //ToActor
 	rem2[4] = "05-04-2017" //Date
 	rem2[5] = "EXP-203"    //ExpenditureId
-
 
 	rem3[0] = "REM-303"    //ReimbursementId
 	rem3[1] = "3000"       //Amount
@@ -269,14 +255,12 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 	rem3[4] = "05-09-2017" //Date
 	rem3[5] = "EXP-204"    //ExpenditureId
 
-
 	rem4[0] = "REM-304"    //ReimbursementId
 	rem4[1] = "5000"       //Amount
 	rem4[2] = "ACT-101"    //FromActor
 	rem4[3] = "ACT-102"    //ToActor
 	rem4[4] = "05-11-2017" //Date
 	rem4[5] = "EXP-205"    //ExpenditureId
-
 
 	rem5[0] = "REM-305"    //ReimbursementId
 	rem5[1] = "2000"       //Amount
@@ -285,14 +269,12 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 	rem5[4] = "05-12-2017" //Date
 	rem5[5] = "EXP-206"    //ExpenditureId
 
-
 	rem6[0] = "REM-306"    //ReimbursementId
 	rem6[1] = "1000"       //Amount
 	rem6[2] = "ACT-102"    //FromActor
 	rem6[3] = "ACT-103"    //ToActor
 	rem6[4] = "05-16-2017" //Date
 	rem6[5] = "EXP-208"    //ExpenditureId
-
 
 	rem7[0] = "REM-307"    //ReimbursementId
 	rem7[1] = "1500"       //Amount
@@ -308,7 +290,6 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 	t.init_reimbursement(stub, rem5)
 	t.init_reimbursement(stub, rem6)
 	t.init_reimbursement(stub, rem7)
-
 
 	return nil, nil
 }
@@ -500,7 +481,6 @@ func (t *SimpleChaincode) init_expenditure(stub shim.ChaincodeStubInterface, arg
 
 	expNumber++
 
-
 	return nil, nil
 }
 
@@ -520,16 +500,13 @@ func (t *SimpleChaincode) ReleaseFund(stub shim.ChaincodeStubInterface, args []s
 		expenseIds = append(expenseIds, args[i])
 	}
 
-
-
 	// get Actor A -- from actor
 	fromActorAsBytes, err := stub.GetState(args[0])
-	if err != nil{
+	if err != nil {
 		return nil, errors.New("Failed to get from actor")
 	}
 	fromActor := Actor{}
 	json.Unmarshal(fromActorAsBytes, &fromActor)
-
 
 	//get the exp index array
 	expsIndexAsBytes, err := stub.GetState(expIndexStr)
@@ -539,14 +516,13 @@ func (t *SimpleChaincode) ReleaseFund(stub shim.ChaincodeStubInterface, args []s
 	var expIndex []string
 	json.Unmarshal(expsIndexAsBytes, &expIndex)
 
-
 	//loop through to get exp.fromActor as toActor for reimbursement
-	for i := 0; i < len(expenseIds); i++{
-		for j := 0; j < len(expIndex); j++{
-			if expIndex[j] == expenseIds[i]{
+	for i := 0; i < len(expenseIds); i++ {
+		for j := 0; j < len(expIndex); j++ {
+			if expIndex[j] == expenseIds[i] {
 				// get to actor ID
 				oneExpAsByte, err1 := stub.GetState(expIndex[j])
-				if err1 != nil{
+				if err1 != nil {
 					return nil, errors.New("Failed to get expenditure")
 				}
 				oneExp := Expenditure{}
@@ -559,7 +535,7 @@ func (t *SimpleChaincode) ReleaseFund(stub shim.ChaincodeStubInterface, args []s
 
 				// change exp status
 				oneExp.Status = "Approved"
-				oneExpAsByte,_ = json.Marshal(oneExp)
+				oneExpAsByte, _ = json.Marshal(oneExp)
 				err = stub.PutState(oneExp.ExpenditureId, oneExpAsByte)
 
 				// create a new reimbursement
@@ -569,18 +545,14 @@ func (t *SimpleChaincode) ReleaseFund(stub shim.ChaincodeStubInterface, args []s
 
 				current_time := time.Now().Local()
 
-				t.init_reimbursement(stub,[]string{remid, oneExp.Amount, args[0], oneExp.FromActor, current_time.String(), expIndex[j]})
+				t.init_reimbursement(stub, []string{remid, oneExp.Amount, args[0], oneExp.FromActor, current_time.String(), expIndex[j]})
 
 			}
 		}
 	}
 
-
-
-
 	return nil, nil
 }
-
 
 // ============================================================================================================================
 // Query Function - Called when query all expenditure
@@ -598,9 +570,8 @@ func (t *SimpleChaincode) QueryAllExpenses(stub shim.ChaincodeStubInterface, arg
 	var expIndex []string
 	json.Unmarshal(expsIndexAsBytes, &expIndex)
 
-
 	var expenses []Expenditure
-	for i := 0; i < len(expIndex); i++{
+	for i := 0; i < len(expIndex); i++ {
 		expAsBytes, err := stub.GetState(expIndex[i])
 		if err != nil {
 			return nil, errors.New("Failed to get expenditure")
@@ -617,13 +588,12 @@ func (t *SimpleChaincode) QueryAllExpenses(stub shim.ChaincodeStubInterface, arg
 	return expsAsBytes, nil
 }
 
-
 // ============================================================================================================================
 // Query Function - Called when query pending expenditure
 // Function: query all the expenditures of this award
 // Query
 // ============================================================================================================================
-func (t *SimpleChaincode) QueryPendingExpenses(stub shim.ChaincodeStubInterface, args []string) ([]byte, error){
+func (t *SimpleChaincode) QueryPendingExpenses(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
 	expsIndexAsBytes, err := stub.GetState(expIndexStr)
 	if err != nil {
@@ -632,9 +602,8 @@ func (t *SimpleChaincode) QueryPendingExpenses(stub shim.ChaincodeStubInterface,
 	var expIndex []string
 	json.Unmarshal(expsIndexAsBytes, &expIndex)
 
-
 	var expenses []Expenditure
-	for i := 0; i < len(expIndex); i++{
+	for i := 0; i < len(expIndex); i++ {
 		expAsBytes, err := stub.GetState(expIndex[i])
 		if err != nil {
 			return nil, errors.New("Failed to get expenditure")
@@ -642,7 +611,7 @@ func (t *SimpleChaincode) QueryPendingExpenses(stub shim.ChaincodeStubInterface,
 		oneExpense := Expenditure{}
 		json.Unmarshal(expAsBytes, &oneExpense)
 
-		if oneExpense.Status == "Pending"{
+		if oneExpense.Status == "Pending" {
 			expenses = append(expenses, oneExpense)
 		}
 	}
@@ -653,8 +622,8 @@ func (t *SimpleChaincode) QueryPendingExpenses(stub shim.ChaincodeStubInterface,
 
 	return expsAsBytes, nil
 
-
 }
+
 //3. all expenditure , reimbursement
 
 // ============================================================================================================================
@@ -662,7 +631,7 @@ func (t *SimpleChaincode) QueryPendingExpenses(stub shim.ChaincodeStubInterface,
 // Function: query all the expenditures of this award
 // Query
 // ============================================================================================================================
-func (t *SimpleChaincode) QueryBlockChain(stub shim.ChaincodeStubInterface, args []string) ([]byte, error){
+func (t *SimpleChaincode) QueryBlockChain(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	return nil, nil
 }
 
@@ -717,7 +686,7 @@ func (t *SimpleChaincode) Spend(stub shim.ChaincodeStubInterface, args []string)
 		expstatus = "Approved"
 	}
 
-	t.init_expenditure(stub, []string{expid, strconv.FormatFloat(amount, 'f', -1, 64), current_time.String(),args[3],expstatus, resA.ActorId, resB.ActorId})
+	t.init_expenditure(stub, []string{expid, strconv.FormatFloat(amount, 'f', -1, 64), current_time.String(), args[3], expstatus, resA.ActorId, resB.ActorId})
 	//exp := Expenditure{}
 	//exp.Amount = strconv.FormatFloat(amount, 'f', -1, 64)
 	//exp.Date = current_time.String()
@@ -725,7 +694,6 @@ func (t *SimpleChaincode) Spend(stub shim.ChaincodeStubInterface, args []string)
 	//exp.ExpenditureId = "ex1"
 	//exp.FromActor = resA.ActorId
 	//exp.ToActor = resB.ActorId
-
 
 	t.transfer_balance(stub, []string{args[0], args[1], args[2], "spend"})
 
@@ -776,7 +744,6 @@ func (t *SimpleChaincode) Init(stub shim.ChaincodeStubInterface, function string
 		return nil, err
 	}
 
-
 	return nil, nil
 }
 
@@ -818,7 +785,7 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, function strin
 		return t.read(stub, args)
 	} else if function == "queryallexpenses" {
 		return t.QueryAllExpenses(stub, args)
-	}else if function == "querypendingexpenses"{
+	} else if function == "querypendingexpenses" {
 		return t.QueryPendingExpenses(stub, args)
 	}
 	fmt.Println("query did not find func: " + function) //error
@@ -1034,31 +1001,7 @@ func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, arg
 	json.Unmarshal(accountBAsBytes, &resB)
 
 	switch args[3] {
-	case "releasefund":
-		AwardA, err := strconv.ParseFloat(resA.Committed, 64)
-		if err != nil {
-			return nil, err
-		}
-		BalanceA, err := strconv.ParseFloat(resA.Reimbursed, 64)
-		if err != nil {
-			return nil, err
-		}
-		BalanceB, err := strconv.ParseFloat(resB.Received, 64)
-		if err != nil {
-			return nil, err
-		}
-		//Check if accountA has enough balance to transact or not
-		if ( AwardA - amount) < 0 {
-			return nil, errors.New(args[0] + " doesn't have enough balance to complete transaction")
-		}
 
-		newAmountA = BalanceA + amount
-		newAmountB = BalanceB + amount
-		newAmountStrA := strconv.FormatFloat(newAmountA, 'f', -1, 64)
-		newAmountStrB := strconv.FormatFloat(newAmountB, 'f', -1, 64)
-
-		resA.Reimbursed = newAmountStrA
-		resB.Received = newAmountStrB
 	case "spend":
 		fmt.Println("INSIDE CASE SPEND==========================")
 		AwardA, err := strconv.ParseFloat(resA.Awarded, 64)
@@ -1086,33 +1029,34 @@ func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, arg
 		resA.Spent = newAmountStrA
 		resB.Received = newAmountStrB
 
+	case "releasefund":
+		AwardA, err := strconv.ParseFloat(resA.Committed, 64)
+		if err != nil {
+			return nil, err
+		}
+		BalanceA, err := strconv.ParseFloat(resA.Reimbursed, 64)
+		if err != nil {
+			return nil, err
+		}
+		BalanceB, err := strconv.ParseFloat(resB.Received, 64)
+		if err != nil {
+			return nil, err
+		}
+		//Check if accountA has enough balance to transact or not
+		if ( AwardA - amount) < 0 {
+			return nil, errors.New(args[0] + " doesn't have enough balance to complete transaction")
+		}
 
-	default:
+		newAmountA = BalanceA + amount
+		newAmountB = BalanceB + amount
+		newAmountStrA := strconv.FormatFloat(newAmountA, 'f', -1, 64)
+		newAmountStrB := strconv.FormatFloat(newAmountB, 'f', -1, 64)
+
+		resA.Reimbursed = newAmountStrA
+		resB.Received = newAmountStrB
 
 	}
-	/*
-	BalanceA,err := strconv.ParseFloat(resA.b, 64)
-	if err != nil {
-		return nil, err
-	}
-	BalanceB,err := strconv.ParseFloat(resB.Balance, 64)
-	if err != nil {
-		return nil, err
-	}
 
-	//Check if accountA has enough balance to transact or not
-	if (BalanceA - amount) < 0 {
-		return nil, errors.New(args[0] + " doesn't have enough balance to complete transaction")
-	}
-
-	newAmountA = BalanceA - amount
-	newAmountB =  BalanceB + amount
-	newAmountStrA := strconv.FormatFloat(newAmountA, 'E', -1, 64)
-	newAmountStrB := strconv.FormatFloat(newAmountB, 'E', -1, 64)
-
-	resA.Balance = newAmountStrA
-	resB.Balance = newAmountStrB
-*/
 	jsonAAsBytes, _ := json.Marshal(resA)
 	err = stub.PutState(args[0], jsonAAsBytes)
 	if err != nil {
@@ -1125,5 +1069,8 @@ func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, arg
 		return nil, err
 	}
 
-	return nil, nil
+	//result := []byte(strconv.FormatFloat(amount,'f', -1, 64))
+	result := []byte(args[3])
+
+	return result, nil
 }
