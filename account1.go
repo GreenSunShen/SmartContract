@@ -105,48 +105,45 @@ func main() {
 func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	//------------------------------create roles----------------------------------------------
 	// grantor info
-
-	act1[0] = "ACT-101"        //ActorId
-	act1[1] = "PPM Foundation" //ActorName
-	act1[2] = "125000"         //Comiitted
-	act1[3] = "55000"          //Reimbursed
-	act1[4] = "-1"             //Awarded
-	act1[5] = "-1"             //Spent
-	act1[6] = "-1"             //Received
-	act1[7] = "-1"             //Delegated
+	act1[0] = "ACT-101"                //ActorId
+	act1[1] = "PPM Foundation"     //ActorName
+	act1[2] = "125000"             //Comiitted
+	act1[3] = "19500"              //Reimbursed
+	act1[4] = "-1"                   //Awarded
+	act1[5] = "-1"                   //Spent
+	act1[6] = "-1"                   //Received
+	act1[7] = "-1"                   //Delegated
 
 	// grantee info
-
-	act2[0] = "ACT-102"             //ActorId
-	act2[1] = "Stanford University" //ActorName
-	act2[2] = "-1"                  //Comiitted
-	act2[3] = "-1"                  //Reimbursed
-	act2[4] = "125000"              //Awarded
-	act2[5] = "23000"               //Spent
-	act2[6] = "55000"               //Received
-	act2[7] = "45000"               //Delegated
+	act2[0] = "ACT-102"                     //ActorId
+	act2[1] = "Stanford University"      //ActorName
+	act2[2] = "-1"                        //Comiitted
+	act2[3] = "-1"                         //Reimbursed
+	act2[4] = "125000"                 //Awarded
+	act2[5] = "23000"                  //Spent
+	act2[6] = "10000"                 //Received
+	act2[7] = "45000"                 //Delegated
 
 	// sub-grantee info
-
-	act3[0] = "ACT-103"                 //ActorId
-	act3[1] = "John Hopkins University" //ActorName
-	act3[2] = "-1"                      //Comiitted
-	act3[3] = "-1"                      //Reimbursed
-	act3[4] = "45000"                   //Awarded
-	act3[5] = "12000"                   //Spent
-	act3[6] = "25000"                   //Received
-	act3[7] = "-1"                      //Delegated
+	act3[0] = "ACT-103"                //ActorId
+	act3[1] = "John Hopkins University"     //ActorName
+	act3[2] = "-1"               //Comiitted
+	act3[3] = "-1"               //Reimbursed
+	act3[4] = "45000"          //Awarded
+	act3[5] = "12000"          //Spent
+	act3[6] = "9500"          //Received
+	act3[7] = "-1"               //Delegated
 
 	// Supplier info -- shows spending form all the grantees and sub-grantees
-
-	act4[0] = "ACT-104"          //ActorId
-	act4[1] = "Dixon consulting" //ActorName
+	act4[0] = "ACT-104"                //ActorId
+	act4[1] = "Dixon consulting"     //ActorName
 	act4[2] = "-1"               //Comiitted
 	act4[3] = "-1"               //Reimbursed
-	act4[4] = "-1"               //Awarded
-	act4[5] = "-1"               //Spent
-	act4[6] = "35000"            //Received
+	act4[4] = "-1"          //Awarded
+	act4[5] = "-1"          //Spent
+	act4[6] = "35000"          //Received
 	act4[7] = "-1"               //Delegated
+
 
 	t.init_actor(stub, act1)
 	t.init_actor(stub, act2)
@@ -562,11 +559,18 @@ func (t *SimpleChaincode) ReleaseFund(stub shim.ChaincodeStubInterface, args []s
 
 				// change exp status
 				oneExp.Status = "Approved"
+				oneExpAsByte,_ = json.Marshal(oneExp)
+				err = stub.PutState(oneExp.ExpenditureId, oneExpAsByte)
 
 				// create a new reimbursement
+				var remid string = "REM-"
+				ii := strconv.Itoa(reimbNumber + 1)
+				remid += ii
 
+				current_time := time.Now().Local()
 
-				// save to world state
+				t.init_reimbursement(stub,[]string{remid, oneExp.Amount, args[0], oneExp.FromActor, current_time.String(), expIndex[j]})
+
 			}
 		}
 	}
@@ -584,14 +588,7 @@ func (t *SimpleChaincode) ReleaseFund(stub shim.ChaincodeStubInterface, args []s
 // Query
 // ============================================================================================================================
 func (t *SimpleChaincode) QueryAllExpenses(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-
-	if len(args) != 1 {
-		return nil, errors.New("Number of arguments is not correct. Expected 1")
-	}
-	if len(args[0]) <= 0 {
-		return nil, errors.New("1st argument must be a non-empty string")
-	}
-
+	//args[0] = ""
 
 	//get the exp index
 	expsIndexAsBytes, err := stub.GetState(expIndexStr)
