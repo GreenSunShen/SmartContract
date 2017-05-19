@@ -1114,22 +1114,22 @@ func (t *SimpleChaincode) Transfer_balance(stub shim.ChaincodeStubInterface, arg
 		resB.Received = newAmountStrB
 
 	case "fund":
-		AwardA, _ := strconv.ParseFloat(resA.Committed, 64)
+		//AwardA, _ := strconv.ParseFloat(resA.Committed, 64)
 		//if err != nil {
 		//	return []byte("error in resA.Committed"), err
 		//}
 		BalanceA, _ := strconv.ParseFloat(resA.Reimbursed, 64)
-		//if err != nil {
-		//	return nil, err
-		//}
-		BalanceB, _ := strconv.ParseFloat(resB.Received, 64)
-		//if err != nil {
-		//	return nil, err
-		//}
-		//Check if accountA has enough balance to transact or not
-		if ( AwardA - amount) < 0 {
-			return nil, errors.New(args[0] + " doesn't have enough balance to complete transaction")
+		if err != nil {
+			return nil, err
 		}
+		BalanceB, _ := strconv.ParseFloat(resB.Received, 64)
+		if err != nil {
+			return nil, err
+		}
+		//Check if accountA has enough balance to transact or not
+		//if  AwardA - amount < 0 {
+		//	return nil, errors.New(args[0] + " doesn't have enough balance to complete transaction")
+		//}
 
 		newAmountA = BalanceA + amount
 		newAmountB = BalanceB + amount
