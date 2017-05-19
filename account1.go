@@ -141,10 +141,10 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 	act4[6] = "35000"            //Received
 	act4[7] = "-1"               //Delegated
 
-	t.init_actor(stub, act1)
-	t.init_actor(stub, act2)
-	t.init_actor(stub, act3)
-	t.init_actor(stub, act4)
+	t.Init_actor(stub, act1)
+	t.Init_actor(stub, act2)
+	t.Init_actor(stub, act3)
+	t.Init_actor(stub, act4)
 
 	//----------------create expenses----------------------------------------------------------
 	// Expense
@@ -531,7 +531,7 @@ func (t *SimpleChaincode) ReleaseFund(stub shim.ChaincodeStubInterface, args []s
 				//TODO CHECK IF THE EXP STATUS IS "Pending"
 
 				// transfer balance
-				t.transfer_balance(stub, []string{args[0], oneExp.FromActor, oneExp.Amount, "fund"})
+				t.Transfer_balance(stub, []string{args[0], oneExp.FromActor, oneExp.Amount, "fund"})
 
 				// change exp status
 				oneExp.Status = "Approved"
@@ -779,7 +779,7 @@ func (t *SimpleChaincode) Spend(stub shim.ChaincodeStubInterface, args []string)
 	//exp.FromActor = resA.ActorId
 	//exp.ToActor = resB.ActorId
 
-	t.transfer_balance(stub, []string{args[0], args[1], args[2], "spend"})
+	t.Transfer_balance(stub, []string{args[0], args[1], args[2], "spend"})
 
 	/*If the status of this exp is "Approved", then a reimbursement gonna auto generated*/
 	//TODO CALL INIT_REIMBURSEMENT TO GENERATE A NEW REIMBURSEMENT
@@ -845,7 +845,7 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	} else if function == "write" {
 		return t.Write(stub, args)
 	} else if function == "initactor" {
-		return t.init_actor(stub, args)
+		return t.Init_actor(stub, args)
 	} else if function == "setup" {
 		return t.SetUp(stub, args)
 	} else if function == "spend" {
@@ -853,7 +853,7 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 	} else if function == "releasefund" {
 		return t.ReleaseFund(stub, args)
 	} else if function == "transferbalance" {
-		return t.transfer_balance(stub, args)
+		return t.Transfer_balance(stub, args)
 	}
 
 	return nil, errors.New("Received unknown function invocation: " + function)
@@ -955,7 +955,7 @@ func (t *SimpleChaincode) Write(stub shim.ChaincodeStubInterface, args []string)
 // ============================================================================================================================
 // Init account - create a new account, store into chaincode world state, and then append the account index
 // ============================================================================================================================
-func (t *SimpleChaincode) init_actor(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (t *SimpleChaincode) Init_actor(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var err error
 
 	//       0        1      2..
@@ -1053,7 +1053,7 @@ func (t *SimpleChaincode) init_actor(stub shim.ChaincodeStubInterface, args []st
 // ============================================================================================================================
 // Transfer Balance - Create a transaction between two accounts, transfer a certain amount of balance
 // ============================================================================================================================
-func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+func (t *SimpleChaincode) Transfer_balance(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 
 	//     0         1         2         3
 	// "actorA", "actorB", "100.20"  "function"
@@ -1086,7 +1086,7 @@ func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, arg
 
 	switch args[3] {
 
-	/*case "spend":
+	case "spend":
 		fmt.Println("INSIDE CASE SPEND==========================")
 		AwardA, err := strconv.ParseFloat(resA.Awarded, 64)
 		if err != nil {
@@ -1112,7 +1112,7 @@ func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, arg
 
 		resA.Spent = newAmountStrA
 		resB.Received = newAmountStrB
-*/
+
 	case "fund":
 		AwardA, err := strconv.ParseFloat(resA.Committed, 64)
 		if err != nil {
