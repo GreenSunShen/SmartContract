@@ -590,7 +590,7 @@ func (t *SimpleChaincode) QueryAllExpenses(stub shim.ChaincodeStubInterface, arg
 
 // ============================================================================================================================
 // Query Function - Called when query pending expenditure
-// Function: query all the expenditures of this award
+// Function: query all the pending expenditures of this award
 // Query
 // ============================================================================================================================
 func (t *SimpleChaincode) QueryPendingExpenses(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
@@ -624,21 +624,102 @@ func (t *SimpleChaincode) QueryPendingExpenses(stub shim.ChaincodeStubInterface,
 
 }
 
-//3. all expenditure , reimbursement
 
 // ============================================================================================================================
-// Query Function - Called when query pending expenditure
-// Function: query all the expenditures of this award
+// Query Function - Called when query block chain diagram
+// Function: query all the transactions of this award before certain date
 // Query
 // ============================================================================================================================
 func (t *SimpleChaincode) QueryBlockChain(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
-	//thresholdDate := time.Date(
-	//	2017, 05, 14, 20, 34, 58, 651387237, time.UTC)
+	//threshold date
+	thresholdDate := time.Date(
+		2017, 05, 14, 20, 34, 58, 651387237, time.UTC)
 
-	return nil, nil
+	// get all expenditure index
+	expsIndexAsBytes, err := stub.GetState(expIndexStr)
+	if err != nil {
+		return nil, errors.New("Failed to get expenditure index")
+	}
+	var expIndex []string
+	json.Unmarshal(expsIndexAsBytes, &expIndex)
+
+	var expenses []Expenditure
+	for i := 0; i < len(expIndex); i++ {
+		expAsBytes, err := stub.GetState(expIndex[i])
+		if err != nil {
+			return nil, errors.New("Failed to get expenditure")
+		}
+		oneExpense := Expenditure{}
+		dateStr := oneExpense.Date
+		date, _ := time.Parse("2006-01-02", dateStr)
+		if diff := date.Sub(thresholdDate); diff > 0{
+			json.Unmarshal(expAsBytes, &oneExpense)
+			expenses = append(expenses, oneExpense)
+		}
+
+	}
+	expsAsBytes, _ := json.Marshal(expenses)
+
+	// get all reimbursement index
+	reimbsIndexAsBytes, err := stub.GetState(reimbIndexStr)
+	if err != nil {
+		return nil, errors.New("Failed to get reimbursement index")
+	}
+	var reimbIndex []string
+	json.Unmarshal(reimbsIndexAsBytes, &reimbIndex)
+
+	var reimbursements []Reimbursement
+	for i := 0; i < len(reimbIndex); i++ {
+		reimbAsBytes, err := stub.GetState(reimbIndex[i])
+		if err != nil {
+			return nil, errors.New("Failed to get reimbursement")
+		}
+		oneReimburse := Reimbursement{}
+		dateStr := oneReimburse.Date
+		date, _ := time.Parse("2006-01-02", dateStr)
+		if diff := date.Sub(thresholdDate); diff > 0{
+			json.Unmarshal(reimbAsBytes, &oneReimburse)
+			reimbursements = append(reimbursements, oneReimburse)
+		}
+
+	}
+
+	reimbsAsBytes, _ := json.Marshal(reimbursements)
+	resultAsBytes := append(expsAsBytes, reimbsAsBytes...)
+
+
+	return resultAsBytes, nil
 }
 
-//4. all actor balance
+
+// ============================================================================================================================
+// Query Function - Called when query actors' wallets
+// Function: query the balance of all actors
+// Query
+// ============================================================================================================================
+func (t *SimpleChaincode) QueryWallet(stub shim.ChaincodeStubInterface, args []string) ([]byte, error){
+	actorIndexAsBytes, err := stub.GetState(accountIndexStr)
+	if err != nil {
+		return nil, errors.New("Failed to get actor index")
+	}
+	var actorIndex []string
+	json.Unmarshal(actorIndexAsBytes, &actorIndex)
+
+	var resultAsBytes []byte
+
+	for i := 0; i < len(actorIndex); i++{
+		actorAsBytes, err := stub.GetState(actorIndex[i])
+		if err != nil{
+			return nil, errors.New("Failed to get actor.")
+		}
+		resultAsBytes = append(resultAsBytes, actorAsBytes...)
+	}
+
+	return resultAsBytes, nil
+}
+
+
+
 // ============================================================================================================================
 // Spend Function - Called when the grantee or sub-grantee has an expenditure
 // Function: update Expenditure struct (create a new one), update Account struct (balance transfer),
@@ -976,7 +1057,7 @@ func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, arg
 
 	//     0         1         2         3
 	// "actorA", "actorB", "100.20"  "function"
-/*	var err error
+	var err error
 	var newAmountA, newAmountB float64
 
 	if len(args) < 4 {
@@ -1005,7 +1086,7 @@ func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, arg
 
 	switch args[3] {
 
-	case "spend":
+	/*case "spend":
 		fmt.Println("INSIDE CASE SPEND==========================")
 		AwardA, err := strconv.ParseFloat(resA.Awarded, 64)
 		if err != nil {
@@ -1031,7 +1112,7 @@ func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, arg
 
 		resA.Spent = newAmountStrA
 		resB.Received = newAmountStrB
-
+*/
 	case "releasefund":
 		AwardA, err := strconv.ParseFloat(resA.Committed, 64)
 		if err != nil {
@@ -1047,7 +1128,7 @@ func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, arg
 		}
 		//Check if accountA has enough balance to transact or not
 		if ( AwardA - amount) < 0 {
-			return []byte("doesn't have enough balance-- relesefund"), errors.New(args[0] + " doesn't have enough balance to complete transaction")
+			return nil, errors.New(args[0] + " doesn't have enough balance to complete transaction")
 		}
 
 		newAmountA = BalanceA + amount
@@ -1063,17 +1144,15 @@ func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, arg
 	jsonAAsBytes, _ := json.Marshal(resA)
 	err = stub.PutState(args[0], jsonAAsBytes)
 	if err != nil {
-		return []byte("error in resA"), err
+		return nil, err
 	}
 
 	jsonBAsBytes, _ := json.Marshal(resB)
 	err = stub.PutState(args[1], jsonBAsBytes)
 	if err != nil {
-		return []byte("errir in resB"), err
+		return nil, err
 	}
 
-	//result := []byte(strconv.FormatFloat(amount,'f', -1, 64)) */
-	//result := []byte(args[3])
-	result := []byte("result")
-	return result, nil
+
+	return nil, nil
 }
