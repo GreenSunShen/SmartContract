@@ -190,6 +190,25 @@ func (t *SimpleChaincode) CreateAward(stub shim.ChaincodeStubInterface, args []s
 	return nil, nil
 }
 
+// ============================================================================================================================
+// Query Function - Called when query all expenditure
+// Function: query all the expenditures of this award
+// Query
+// ============================================================================================================================
+func (t *SimpleChaincode) QueryAllExpenses(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	// 0 award id
+
+	return nil, nil
+}
+
+
+
+//1. expenditure all
+//2. pending expenditure
+//3. all expenditure , reimbursement
+//4. all actor balance
+
+
 
 
 // ============================================================================================================================
@@ -263,7 +282,7 @@ func (t *SimpleChaincode) Spend(stub shim.ChaincodeStubInterface, args []string)
 	}
 
 
-	t.transfer_balance(stub, []string{args[0], args[1], args[2], "spend"})
+	//t.transfer_balance(stub, []string{args[0], args[1], args[2], "spend"})
 
 	return nil, nil
 }
