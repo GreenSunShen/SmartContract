@@ -650,11 +650,11 @@ func (t *SimpleChaincode) QueryBlockChain(stub shim.ChaincodeStubInterface, args
 			return nil, errors.New("Failed to get expenditure")
 		}
 		oneExpense := Expenditure{}
+		json.Unmarshal(expAsBytes, &oneExpense)
 		dateStr := oneExpense.Date
 		date, _ := time.Parse("2006-01-02", dateStr)
 		diff := date.Sub(thresholdDate)
 		if  diff > 0{
-			json.Unmarshal(expAsBytes, &oneExpense)
 			expenses = append(expenses, oneExpense)
 		}
 
@@ -676,11 +676,11 @@ func (t *SimpleChaincode) QueryBlockChain(stub shim.ChaincodeStubInterface, args
 			return nil, errors.New("Failed to get reimbursement")
 		}
 		oneReimburse := Reimbursement{}
+		json.Unmarshal(reimbAsBytes, &oneReimburse)
 		dateStr := oneReimburse.Date
 		date, _ := time.Parse("2006-01-02", dateStr)
 		diff := date.Sub(thresholdDate)
 		if diff > 0{
-			json.Unmarshal(reimbAsBytes, &oneReimburse)
 			reimbursements = append(reimbursements, oneReimburse)
 		}
 
