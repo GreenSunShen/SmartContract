@@ -713,15 +713,21 @@ func (t *SimpleChaincode) QueryWallet(stub shim.ChaincodeStubInterface, args []s
 	var actorIndex []string
 	json.Unmarshal(actorIndexAsBytes, &actorIndex)
 
-	var resultAsBytes []byte
+	//var resultAsBytes []byte
+	var allActors []Actor
 
 	for i := 0; i < len(actorIndex); i++{
 		actorAsBytes, err := stub.GetState(actorIndex[i])
 		if err != nil{
 			return nil, errors.New("Failed to get actor.")
 		}
-		resultAsBytes = append(resultAsBytes, actorAsBytes...)
+		oneActor := Actor{}
+		json.Unmarshal(actorAsBytes,&oneActor)
+		allActors = append(allActors, oneActor)
+		//resultAsBytes = append(resultAsBytes, actorAsBytes...)
 	}
+
+	resultAsBytes, _ := json.Marshal(allActors)
 
 	return resultAsBytes, nil
 }
