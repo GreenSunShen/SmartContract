@@ -632,6 +632,9 @@ func (t *SimpleChaincode) QueryPendingExpenses(stub shim.ChaincodeStubInterface,
 // Query
 // ============================================================================================================================
 func (t *SimpleChaincode) QueryBlockChain(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
+	//thresholdDate := time.Date(
+	//	2017, 05, 14, 20, 34, 58, 651387237, time.UTC)
+
 	return nil, nil
 }
 
@@ -1070,7 +1073,7 @@ func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, arg
 	}
 
 	//result := []byte(strconv.FormatFloat(amount,'f', -1, 64)) */
-	result := []byte(args[3])
-
+	//result := []byte(args[3])
+	result := []byte("result")
 	return result, nil
 }
