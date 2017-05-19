@@ -973,7 +973,7 @@ func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, arg
 
 	//     0         1         2         3
 	// "actorA", "actorB", "100.20"  "function"
-	var err error
+/*	var err error
 	var newAmountA, newAmountB float64
 
 	if len(args) < 4 {
@@ -1032,7 +1032,7 @@ func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, arg
 	case "releasefund":
 		AwardA, err := strconv.ParseFloat(resA.Committed, 64)
 		if err != nil {
-			return nil, err
+			return []byte("error in resA.Committed"), err
 		}
 		BalanceA, err := strconv.ParseFloat(resA.Reimbursed, 64)
 		if err != nil {
@@ -1044,7 +1044,7 @@ func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, arg
 		}
 		//Check if accountA has enough balance to transact or not
 		if ( AwardA - amount) < 0 {
-			return nil, errors.New(args[0] + " doesn't have enough balance to complete transaction")
+			return []byte("doesn't have enough balance-- relesefund"), errors.New(args[0] + " doesn't have enough balance to complete transaction")
 		}
 
 		newAmountA = BalanceA + amount
@@ -1060,16 +1060,16 @@ func (t *SimpleChaincode) transfer_balance(stub shim.ChaincodeStubInterface, arg
 	jsonAAsBytes, _ := json.Marshal(resA)
 	err = stub.PutState(args[0], jsonAAsBytes)
 	if err != nil {
-		return nil, err
+		return []byte("error in resA"), err
 	}
 
 	jsonBAsBytes, _ := json.Marshal(resB)
 	err = stub.PutState(args[1], jsonBAsBytes)
 	if err != nil {
-		return nil, err
+		return []byte("errir in resB"), err
 	}
 
-	//result := []byte(strconv.FormatFloat(amount,'f', -1, 64))
+	//result := []byte(strconv.FormatFloat(amount,'f', -1, 64)) */
 	result := []byte(args[3])
 
 	return result, nil
