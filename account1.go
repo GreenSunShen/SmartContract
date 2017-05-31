@@ -278,7 +278,7 @@ func (t *SimpleChaincode) SetUp(stub shim.ChaincodeStubInterface, args []string)
 
 	rem7[0] = "REM-307"    //ReimbursementId
 	rem7[1] = "1500"       //Amount
-	rem7[2] = "ACT-102"    //FromActor
+	rem7[2] = "ACT-102"    //FromAct
 	rem7[3] = "ACT-103"    //ToActor
 	rem7[4] = "2017-05-29" //Date
 	rem7[5] = "EXP-209"    //ExpenditureId
