@@ -805,7 +805,7 @@ func (t *SimpleChaincode) Spend(stub shim.ChaincodeStubInterface, args []string)
 		current_time := time.Now().Local()
 		t.init_reimbursement(stub, []string{remid, strconv.FormatFloat(amount, 'f', -1, 64),"ACT-101", resA.ActorId, current_time.String(), expid})
 
-		t.Transfer_balance(stub, []string{args[0], args[1], args[2], "fund"})
+		t.Transfer_balance(stub, []string{"ACT-101", args[0], args[2], "fund"})
 	}
 	return nil, nil
 }
